@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christopher's Digital Solutions - Interactive</title>
+    <script src="/js/superUtilBase.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/interactive.js"></script>
+    <link rel="stylesheet" href="/css/interactive.css">
+</head>
+<body>
+    <div class="fullScreenWrapper"></div>
+    <div class="navBar">
+        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions</span>
+        <div class="navList">
+            <ul>
+                <li onclick="window.location='/dashboard'">Dashboard</li>
+                <li onclick="window.location='/dashboard/filemanager'">File Manager</li>
+                <li onclick="window.location='/dashboard/interactive'"><u>Interactive</u></li>
+                <li onclick="window.location='/logout'">Logout</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mainContent">
+        <h1>Interactive</h1>
+        Welcome to Interactive. You can interact live with other users. Check out the Web Socket programs below.
+        <div class="interactiveActions">
+            <button onclick="interactive.showUsers();">Show Users</button>
+            <button onclick="interactive.showGlobalChat();">Global Chat</button>
+        </div>
+        <br>
+        <div class="usersList">
+            <ul></ul>
+        </div> 
+        <div class="globalChatWrapper">
+            <ul></ul>
+            <input type="text" placeholder="Type Short text here" id="globalChatInputField">
+            <button onclick="interactive.sendGlobalMessage();">Send</button>
+        </div>
+    </div>
+</body>
+</html>

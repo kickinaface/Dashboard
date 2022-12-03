@@ -1,0 +1,27 @@
+.usersList, .globalChatWrapper{
+    display: none;
+}
+
+    .usersList ul li{
+        list-style: none;
+        background:white;
+        padding-left:10px
+    }
+        .usersList ul li button{
+            padding: 5px;
+            border-radius: 6px;
+        }
+
+.globalChatWrapper{
+    padding: 10px;
+    background: white;
+}
+    .globalChatWrapper input{
+        width: 90%;
+        float: left;
+    }
+
+    .globalChatWrapper ul li{
+        list-style: none;
+        padding-left: 10px;
+    }

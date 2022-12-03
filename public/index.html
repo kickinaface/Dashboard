@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christopher's Digital Solutions</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="js/main.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="navBar">
+        <span class="logo">Christopher's Digital Solutions</span>
+        <div class="navList">
+            <ul>
+                <li onclick="window.location='/login'">Login</li>
+                <li onclick="window.location='/register'">Register</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mainContent">
+        <h3>Welcome to My Dashboard app. 
+            <br>
+            <br>Please <a href="/login">Login</a> to Dashboard or <a href="/register">Register</a> to continue</h3>
+    </div>
+</body>
+</html>

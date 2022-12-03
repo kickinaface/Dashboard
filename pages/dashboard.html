@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christopher's Digital Solutions - Dashboard</title>
+    <script src="/js/superUtilBase.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <div class="fullScreenWrapper"></div>
+    <div class="navBar">
+        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions - Dashboard</span>
+        <div class="navList">
+            <ul>
+                <li onclick="window.location='/dashboard'"><u>Dashboard</u></li>
+                <li onclick="window.location='/dashboard/filemanager'">File Manager</li>
+                <li onclick="window.location='/dashboard/interactive'">Interactive</li>
+                <li onclick="window.location='/logout'">Logout</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mainContent">
+        <h1>Dashboard</h1>
+        <h3>Welcome <span class="usersName">user</span>.</h3>
+        <button onclick="dashboard.editName();">Edit Name</button>
+        <button onclick="dashboard.openChangePasswordModal();">Change Password</button>
+    </div>
+</body>
+</html>

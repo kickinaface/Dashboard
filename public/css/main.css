@@ -1,0 +1,153 @@
+*{
+    padding: 0;
+    margin:0;
+}
+body{
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+    background: #efefef;
+}
+a:link{
+    color:royalblue;
+}
+a:visited{
+    color:royalblue;
+}
+a:hover{
+    color:black;
+}
+.navBar {
+    width: 100%;
+    background-color: royalblue;
+    padding:10px 0px 15px 0px;
+}
+    .logo{
+        color:white;
+        font-weight: bold;
+        font-size: 18pt;
+        padding-left:15px;
+    }
+    .logo:hover{
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    .navList {
+        float: right;
+    }
+    .navList ul li{
+        float: left;
+        padding-top:5px;
+        padding-right:15px;
+        list-style: none;
+        color:white;
+        font-weight: bold;
+    }
+    .navList ul li:hover{
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+.mainContent {
+    margin:20px;
+}
+
+input{
+    padding: 10px;
+    margin:10px;
+    border: 1px solid black;
+}
+
+button{
+    padding:10px;
+    margin: 10px;
+    background-color: royalblue;
+    color:white;
+    outline: none;
+    border:none;
+    cursor: pointer;
+}
+.red{
+    color:red;
+}
+.green {
+    color:green;
+}
+
+.displayDrives ul li{
+    list-style: none;
+    float: left;
+}
+
+.driveContentsWrapper {
+    display: none;
+    width: 100%;
+    background:white;
+}
+.driveContentsWrapper ul li{
+    list-style: none;
+    font-size: 14pt;
+    padding:5px;
+}
+
+.driveContentsWrapper ul li:hover{
+    text-decoration: underline;
+    cursor: pointer;
+    background: royalblue;
+    color:white;
+}
+
+.fullScreenWrapper{
+    background-color:rgba(0,0,0, 0.5);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    display: none;
+}
+
+    .modalContentWrapper{
+        background:#efefef;
+        width: 500px;
+        margin: 0 auto;
+        text-align: center;
+        padding:20px;
+        margin-top:20px;
+    }
+        .closeModal{
+            padding: 5px;
+            background-color:indianred;
+            color:white;
+            width:80px;
+            margin:0 auto;
+            margin-top:20px;
+            cursor: pointer;
+        }
+        .downloadProgressWrapper{
+            width: 90%;
+            height: 40px;
+            border: 1px solid black;
+            margin: 0 auto;
+        }
+            .downloadProgress{
+                float: left;
+                width: 0%;
+                height: 100%;
+                background-color:chartreuse;
+                text-align: center;
+            }
+                .downloadProgress div{
+                    color:black;
+                    margin-top:10px;
+                }
+.forgotPass{
+    font-size: 11pt;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.singleUser {
+    background-color: white;
+    padding: 15px;
+}

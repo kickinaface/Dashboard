@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christopher's Digital Solutions - Admin Dashboard</title>
+    <script src="/js/superUtilBase.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/moment.js"></script>
+    <script>
+        dashboard.init();
+        dashboard.showAllUsers = function (){
+            var subContentWrapper = document.querySelector(".subContentWrapper");
+            subContentWrapper.innerHTML = "";
+            superUtil.grabJSON('/api/dashboard/getAllUsers', function (status, data) {
+                if(status == 200){
+                    
+                    for(var u=0; u<=data.length-1; u++){
+                        var user_id =data[u]._id;
+                        subContentWrapper.innerHTML+= "<div class='singleUser'><i>_id: </i><span class='user_id'>"+data[u]._id+
+                        "</span></br><i> Name: </i>"+
+                        data[u].firstName +" "+data[u].lastName+
+                        "</br><i> Username: </i>"+
+                        data[u].username + 
+                        "</br><i> Role: </i>"+
+                        data[u].role + 
+                        "</br><i> User Agent: </i>"+
+                        data[u].userAgent + 
+                        "</br><i> Is Hidden: </i>"+
+                        data[u].isHidden +
+                        "</br><i> Account Creation Date: </i>"+
+                        moment(data[u].createdDate).format("MMMM Do YYYY, h:mm:ss a") +
+                        "</br><button onclick=dashboard.changeUserRole(event);>Change User's Role</button>"+
+                        "<button class='closeModal' onclick=dashboard.deleteUser(event);>Delete User</button></div></br>";
+                    }                    
+                }
+            });
+        }
+
+        dashboard.deleteUser = function (event){
+            var userId = event.target.parentNode.querySelector(".user_id").innerHTML;
+            document.querySelector(".fullScreenWrapper").style.display = "block";
+            document.querySelector('.fullScreenWrapper').innerHTML = 
+                '<div class="modalContentWrapper">'+
+                    '<h2>Delete User</h2>'+
+                        "<br>"+
+                        "<i class='user_id'>"+userId+"</i>"+
+                        "</br>"+
+                        "Are you sure you wish to delete this user? <br>This action cannot be undone.<br>"+
+                        
+                        "<p><button type='submit' onclick='dashboard.deleteUserById(event);'>Remove User</button></p>"+
+                        "<div class='modalMessages'></div>"+
+                    '<div class="closeModal" onclick="dashboard.closeModal()">Close (X)</div>'+
+                '</div>';
+        };
+
+        dashboard.deleteUserById = function (event){
+            var userId = event.target.parentNode.parentNode.querySelector(".user_id").innerHTML;
+            superUtil.authPostRequest(null, ("api/dashboard/deleteUserbyId/"+userId), function(status, res){
+                if(status!= 200){
+                    console.log(res.message)
+                    location.reload();
+                } else if(status == 200){
+                    location.reload();
+                }
+            },"DELETE");
+        };
+
+        dashboard.changeUserRole = function(event){
+            var userId = event.target.parentNode.querySelector(".user_id").innerHTML;
+            document.querySelector(".fullScreenWrapper").style.display = "block";
+            document.querySelector('.fullScreenWrapper').innerHTML = 
+                '<div class="modalContentWrapper">'+
+                    "<h2>Change User's Role</h2>"+
+                        "<br>"+
+                        "<i class='user_id'>"+userId+"</i>"+
+                        "</br>"+
+                        "Please select the new role and assign it to the user. Click save to continue.<br>"+
+                        '<select id="selectRole">'+
+                            '<option value="Admin">Administrator</option>'+
+                            '<option value="Basic" selected>Basic User</option>'+
+                            '<option value="Team_I">Team I</option>'+
+                            '<option value="Team_J">Team J</option>'+
+                            '<option value="Team_K">Team K</option>'+
+                        '</select>'+
+                        
+                        "<p><button type='submit' onclick='dashboard.updateRoleById(event);'>Update Role</button></p>"+
+                        "<div class='modalMessages'></div>"+
+                    '<div class="closeModal" onclick="dashboard.closeModal()">Close (X)</div>'+
+                '</div>';
+        };
+
+        dashboard.updateRoleById = function (event){
+            var userId = event.target.parentNode.parentNode.querySelector(".user_id").innerHTML;
+            var selectRole = event.target.parentNode.parentNode.querySelector("#selectRole").value;
+            var newRolePrep = {userId, selectRole};
+            superUtil.sendJSON(newRolePrep, ("api/dashboard/updateUserRole"), function(status, res){
+                if(status!= 200){
+                    console.log(res.message);
+                } else if(status == 200){
+                    console.log(res.message);
+                    document.querySelector(".modalMessages").innerHTML = "<span class='green'>"+res.message+"</span>";
+                    setTimeout(function(){
+                        location.reload();
+                    },1500);
+                }
+            },"POST");
+        };
+    </script>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <div class="fullScreenWrapper"></div>
+    <div class="navBar">
+        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions - Admin Dashboard</span>
+        <div class="navList">
+            <ul>
+                <li onclick="window.location='/dashboard'"><u>Dashboard</u></li>
+                <li onclick="window.location='/dashboard/filemanager'">File Manager</li>
+                <li onclick="window.location='/dashboard/interactive'">Interactive</li>
+                <li onclick="window.location='/logout'">Logout</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mainContent">
+        <h1>Admin Dashboard</h1>
+        <h3>Welcome <span class="usersName">user</span>.</h3>
+        <button onclick="dashboard.editName();">Edit Name</button>
+        <button onclick="dashboard.openChangePasswordModal();">Change Password</button>
+        <button onclick="dashboard.showAllUsers();">Show All Users</button>
+        <br>
+        <div class="subContentWrapper"></div>
+    </div>
+</body>
+</html>

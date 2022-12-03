@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christopher's Digital Solutions - File Manager</title>
+    <script src="/js/superUtilBase.js"></script>
+    <script src="/js/fileManager.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+   
+</head>
+<body>
+    <div class="fullScreenWrapper"></div>
+    <div class="navBar">
+        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions</span>
+        <div class="navList">
+            <ul>
+                <li onclick="window.location='/dashboard'">Dashboard</li>
+                <li onclick="window.location='/dashboard/filemanager'"><u>File Manager</u></li>
+                <li onclick="window.location='/dashboard/interactive'">Interactive</li>
+                <li onclick="window.location='/logout'">Logout</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mainContent">
+        <h1>File Manager</h1>
+        Welcome to File Manager. You can view available drives and upload files.
+        <div class="filemanagerActions">
+            <button onclick="fileManager.uploadFileModal();">Upload Files</button>
+        </div>
+        <br>
+        <div class="displayDrives">
+            <h2>Available Drives:</h2>
+            <ul></ul>
+        </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="driveContentsWrapper">
+            <ul></ul>
+        </div>
+    </div>
+</body>
+</html>

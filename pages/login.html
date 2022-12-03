@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christopher's Digital Solutions - Login</title>
+    <script src="/js/superUtilBase.js"></script>
+    <script src="/js/login.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="fullScreenWrapper"></div>
+    <div class="navBar">
+        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions</span>
+        <div class="navList">
+            <ul>
+                <li onclick="window.location='/login'"><u>Login</u></li>
+                <li onclick="window.location='/register'">Register</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mainContent">
+        <h1>Login</h1>
+        <form>
+            <p>
+                <input type="text" placeholder="email@email.com" name="username" class="loginUsername">
+            </p>
+            <p>
+                <input type="password" placeholder="password" password="password" class="loginPassword">
+            </p>
+            <span class="forgotPass" onclick="forgotPassModal();">I forgot my password</span>
+            <p><button onclick="loginUser(event);">Login</button></p>
+            
+            <div class="statusMessages"></div>
+        </form>
+    </div>
+    
+</body>
+</html>
