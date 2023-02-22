@@ -5,8 +5,9 @@ function DashboardController(){
         app.route("/dashboard").get(function (req, res){
             var heldToken = req.cookies.myDashboardAppToken;
             var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             if(heldToken != undefined){
-                User.findOne({token:heldToken, userAgent:clientUserAgent}, function(err, foundUser){
+                User.findOne({token:heldToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function(err, foundUser){
                     if(foundUser){
                         if(tokenMethods.authenticateToken(heldToken) == true){
                             if(foundUser.role == "Basic"){
@@ -33,8 +34,10 @@ function DashboardController(){
         });
 
         router.route("/dashboard/getName").get(function (req, res) {
+            var ipAddress = req.socket.remoteAddress;
+            var clientUserAgent = req.headers['user-agent'];
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         res.send({name:(foundUser.firstName + ' '+ foundUser.lastName)})
                     }
@@ -45,8 +48,10 @@ function DashboardController(){
         });
 
         router.route("/dashboard/getAllUsers").get(function (req, res){
+            var ipAddress = req.socket.remoteAddress;
+            var clientUserAgent = req.headers['user-agent'];
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, role: "Admin"}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, role: "Admin", userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         User.find(function (err, allUsers){
                             if(err){
@@ -69,6 +74,8 @@ function DashboardController(){
                                 res.send(preparedUserList);
                             }
                         });
+                    } else {
+                        res.sendStatus(403);
                     }
                 });
             } else{
@@ -77,8 +84,10 @@ function DashboardController(){
         });
 
         router.route("/dashboard/deleteUserbyId/:userId").delete(function (req, res){
+            var ipAddress = req.socket.remoteAddress;
+            var clientUserAgent = req.headers['user-agent'];
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, role:"Admin"}, function (err, foundUser){
+                User.findOne({token: req.cookies.myDashboardAppToken, role:"Admin", userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser){
                     if(foundUser){
                         var userToDeleteById = req.params.userId;
                         User.deleteOne({
@@ -97,8 +106,10 @@ function DashboardController(){
         });
 
         router.route("/dashboard/updateUserRole").post(function(req, res){
+            var ipAddress = req.socket.remoteAddress;
+            var clientUserAgent = req.headers['user-agent'];
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, role:"Admin"}, function (err, foundUser){
+                User.findOne({token: req.cookies.myDashboardAppToken, role:"Admin", userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser){
                     if(foundUser){
                         var userToUpdate = req.body.userId;
                         var newRole = req.body.selectRole;
@@ -123,9 +134,10 @@ function DashboardController(){
 
         router.route("/dashboard/updateName").post(function (req, res){
             var preparedName = req.body.preparedName;
-            //
+            var ipAddress = req.socket.remoteAddress;
+            var clientUserAgent = req.headers['user-agent'];
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         if(preparedName.firstName == "" && preparedName.lastName == ""){
                             res.status(403).send({message:"Do not leave both fields blank."});
@@ -150,9 +162,11 @@ function DashboardController(){
 
         router.route("/dashboard/changePassword").post(function (req, res){
             var preparedNewpass = req.body.preparedNewpass;
+            var ipAddress = req.socket.remoteAddress;
+            var clientUserAgent = req.headers['user-agent'];
             //
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         if(preparedNewpass.newPassword1 != preparedNewpass.newPassword2){
                             res.status(403).send({message:"You must enter the same password twice."});

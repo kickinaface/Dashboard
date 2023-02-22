@@ -5,8 +5,9 @@ function Login(){
         app.route("/login").get(function (req, res){
             var heldToken = req.cookies.myDashboardAppToken;
             var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             if(heldToken != undefined){
-                User.findOne({token:heldToken, userAgent:clientUserAgent}, function(err, foundUser){
+                User.findOne({token:heldToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function(err, foundUser){
                     if(foundUser){
                         if(tokenMethods.authenticateToken(heldToken) == true){
                             res.redirect('/dashboard');
@@ -26,6 +27,7 @@ function Login(){
             var errorMessage = 'Incorrect login credentials. Please check and try again.';
             var username = req.body.username;
             var password = req.body.password;
+            var ipAddress = req.socket.remoteAddress;
             username = username.toLowerCase();
             if(username === undefined || password === undefined || username === '' || password === '') {
                 res.status(403).send({ message: 'ERROR: You must define a username and password'});
@@ -39,6 +41,7 @@ function Login(){
                             foundUser.token = token;
                             foundUser.userAgent = clientUserAgent;
                             foundUser.forgotPass = null;
+                            foundUser.ipAddress = ipAddress;
                             foundUser.save();
                             res.cookie('myDashboardAppToken', token);
                             res.json({
@@ -63,6 +66,7 @@ function Login(){
                         var genudid = require("../../controllers/serviceMethods/generateUdid");
                         var forgotPass = genudid.gen();
                         foundUser.forgotPass = forgotPass
+                        console.log("foundUser.forgotPass: ",foundUser.forgotPass);
                         foundUser.save();
                         res.send({message:"Please check your email."});
                         var mailController = require("../../controllers/mailController/mailController");

@@ -11,7 +11,8 @@ var UserSchema = new Schema({
     userAgent: String,
     forgotPass: String,
     isHidden: Boolean,
-    createdDate: Date
+    createdDate: Date,
+    ipAddress:String
 });
 
 UserSchema.index({'firstName':'text', 'lastName':'text', 'username':'text'});

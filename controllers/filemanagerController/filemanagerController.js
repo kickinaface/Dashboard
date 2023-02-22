@@ -2,8 +2,16 @@ function FilemanagerController(){
     const fs = require('fs');
     const diskDrives = [
         {
-            name:'(E:) Drive (Book)',
-            path:'E:/'
+            name:'(I:) Drive',
+            path:'I:/'
+        },
+        {
+            name:'(J:) Drive',
+            path:'J:/'
+        },
+        {
+            name:'(K:) Drive',
+            path:'K:/'
         },
     ];
     this.init = function init(app, router, pageFile, User){
@@ -13,8 +21,9 @@ function FilemanagerController(){
         app.route("/dashboard/filemanager").get(function(req, res) {
             var heldToken = req.cookies.myDashboardAppToken;
             var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             if(heldToken != undefined){
-                User.findOne({token:heldToken, userAgent:clientUserAgent}, function(err, foundUser){
+                User.findOne({token:heldToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function(err, foundUser){
                     if(foundUser){
                         if(tokenMethods.authenticateToken(heldToken) == true){
                             res.sendFile(pageFile);
@@ -29,8 +38,10 @@ function FilemanagerController(){
         });
         // API Routes
         router.route("/dashboard/filemanager/getDrives").get(function (req, res) {
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         res.send({drives: diskDrives});
                     }
@@ -42,9 +53,11 @@ function FilemanagerController(){
 
         router.route("/dashboard/filemanager/showDriveContents/:driveNum").get(function (req, res){
             var driveNum = req.params.driveNum;
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             //
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         fs.readdir(diskDrives[driveNum].path, (err, files) =>{
                             var diskFileContents = [];
@@ -71,9 +84,11 @@ function FilemanagerController(){
 
         router.route("/dashboard/filemanager/getContentsFromPath").post(function (req, res){
             var requestedPath = req.body.requestPath;
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             //
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         if(fs.statSync(requestedPath).isDirectory() == true){
                             // Load directory
@@ -109,8 +124,10 @@ function FilemanagerController(){
         });
 
         router.route("/dashboard/filemanager/downloadFileFromPath").post(function (req, res){
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         if(req.body.requestFile.includes('C:')){
                             res.sendStatus(403);
@@ -126,8 +143,10 @@ function FilemanagerController(){
         });
 
         router.route("/dashboard/filemanager/uploadFile").post(function (req, res){
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, role: 'Admin'}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, role: 'Admin', userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         if(!req.files || Object.keys(req.files).length === 0){
                             res.status(404).send('No files uploaded.');
@@ -169,8 +188,10 @@ function FilemanagerController(){
         });
 
         router.route("/dashboard/filemanager/deleteFile").post(function (req, res){
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, role:'Admin'}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, role:'Admin', userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         fs.unlink(req.body.filePath, function (err){
                             if(err){

@@ -7,17 +7,17 @@ body{
     background: #efefef;
 }
 a:link{
-    color:royalblue;
+    color:#c41717;
 }
 a:visited{
-    color:royalblue;
+    color:#c41717;
 }
 a:hover{
     color:black;
 }
 .navBar {
     width: 100%;
-    background-color: royalblue;
+    background-color: #c41717; 
     padding:10px 0px 15px 0px;
 }
     .logo{
@@ -59,7 +59,7 @@ input{
 button{
     padding:10px;
     margin: 10px;
-    background-color: royalblue;
+    background-color: #c41717;
     color:white;
     outline: none;
     border:none;
@@ -91,7 +91,7 @@ button{
 .driveContentsWrapper ul li:hover{
     text-decoration: underline;
     cursor: pointer;
-    background: royalblue;
+    background: #c41717;
     color:white;
 }
 
