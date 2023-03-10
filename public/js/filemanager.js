@@ -107,11 +107,14 @@ function FileManager(){
             console.log(status);
             console.log(data);
         }, 'POST');
-
+        
         function downloadFile(postData, address, callback, postType){
             that.isDownloading = true;
             var xhr = new XMLHttpRequest();
             var url = address;
+            var getFilename = function (str) {
+                return str.substring(str.lastIndexOf('/')+1);
+            }
             //
             xhr.open(postType, url, true);
             xhr.setRequestHeader("Content-type", "application/json");
@@ -127,12 +130,18 @@ function FileManager(){
                 }
             })
             xhr.onreadystatechange = function (e) {
-                var urlCreator = window.URL || window.webkitURL;
                 if(xhr.response != undefined){
                     that.isDownloading = false;
-                    var imageUrl = urlCreator.createObjectURL(xhr.response);
+                    var fileName = getFilename(postData.requestFile);
+                    var fileUrl = window.URL.createObjectURL(xhr.response);
+                    var fileLink = document.createElement('a');
+                    fileLink.href = fileUrl;
+                    fileLink.setAttribute("download",fileName);
+                    fileLink.setAttribute("target","_blank");
+                    document.body.appendChild(fileLink);
+                    fileLink.click();
+                    fileLink.remove();
                     document.querySelector('.fullScreenWrapper').style.display = 'none';
-                    window.location = imageUrl;
                 }
             }
             var data = JSON.stringify(postData);

@@ -3,15 +3,15 @@ function FilemanagerController(){
     const diskDrives = [
         {
             name:'(I:) Drive',
-            path:'I:/'
+            path:'I:'
         },
         {
             name:'(J:) Drive',
-            path:'J:/'
+            path:'J:'
         },
         {
             name:'(K:) Drive',
-            path:'K:/'
+            path:'K:'
         },
     ];
     this.init = function init(app, router, pageFile, User){
@@ -60,19 +60,25 @@ function FilemanagerController(){
                 User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         fs.readdir(diskDrives[driveNum].path, (err, files) =>{
-                            var diskFileContents = [];
-                            files.forEach(file => {
-                                if(!isUnixHiddenPath(file)){
-                                    if(file != "System Volume Information" && file != "$RECYCLE.BIN"){
-                                        var preparedFileObject = {
-                                            name: file,
-                                            path: (diskDrives[driveNum].path+file)
-                                        };
-                                        diskFileContents.push(preparedFileObject);
+                            if(err){
+                                console.log(err)
+                                res.send(err);
+                            } else {
+                                var diskFileContents = [];
+                                files.forEach(file => {
+                                    if(!isUnixHiddenPath(file)){
+                                        if(file != "System Volume Information" && file != "$RECYCLE.BIN"){
+                                            var preparedFileObject = {
+                                                name: file,
+                                                path: (diskDrives[driveNum].path+file)
+                                            };
+                                            diskFileContents.push(preparedFileObject);
+                                        }
                                     }
-                                }
-                            });
-                            res.send(diskFileContents);
+                                });
+                                res.send(diskFileContents);
+                            }
+                            
                         });
                     }
                 });
@@ -133,7 +139,14 @@ function FilemanagerController(){
                             res.sendStatus(403);
                         } else {
                             var path = require("path");
-                            res.download(req.body.requestFile, (path.basename(req.body.requestFile).toString()));
+                            var fileName = (path.basename(req.body.requestFile).toString());
+                            res.download(req.body.requestFile, fileName, function(err){
+                                if(err){
+                                    console.log(err);
+                                } else {
+                                    console.log("Filename: ", fileName, " was downloaded");
+                                }
+                            });
                         }
                     }
                 });
