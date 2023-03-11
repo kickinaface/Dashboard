@@ -35,7 +35,7 @@ function RegisterController(){
             } else if(ValidateEmail(emailAddress) == false){
                 res.status(403).send({ message:'ERROR: You must provide a valid email address.' })
             } else if(ValidatePassword(password) == false){
-                res.status(403).send({ message:"Minimum eight characters, at least one letter and one number." });
+                res.status(403).send({ message:"Minimum 10-16 characters, no whitespace, at least one uppercase character, at least one lowercase character, at least one digit, at least one special character." });
             } else {
                 User.findOne({username: emailAddress}, function (err, foundUser){
                     if(foundUser == null || foundUser == undefined){
@@ -75,7 +75,7 @@ function RegisterController(){
     };
 
     function ValidatePassword(password){
-        if(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)){
+        if(/^(?!.*\s)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹]).{10,16}$/.test(password)){
             return (true);
         } else {
             return (false);

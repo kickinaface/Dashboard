@@ -43,7 +43,25 @@ function FilemanagerController(){
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
                 User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
-                        res.send({drives: diskDrives});
+                        if(foundUser.role == "Team_K"){
+                            res.send({drives: [{
+                                name:'(K:) Drive',
+                                path:'K:/'
+                            }]});
+                        } else if(foundUser.role == "Basic" || foundUser.role == "Team_I"){
+                            res.send({drives: [{
+                                name:'(I:) Drive',
+                                path:'I:/'
+                            }]});
+                        }else if(foundUser.role == "Team_J"){
+                            res.send({drives: [{
+                                name:'(J:) Drive',
+                                path:'J:/'
+                            }]});
+                        }else if(foundUser.role == "Admin"){
+                            res.send({drives:diskDrives});
+                        }
+                        
                     }
                 });
             } else {
@@ -59,7 +77,26 @@ function FilemanagerController(){
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
                 User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
-                        fs.readdir(diskDrives[driveNum].path, (err, files) =>{
+                        var driveArray = [];
+                        if(foundUser.role == "Team_K"){
+                            driveArray = [{
+                                name:'(K:) Drive',
+                                path:'K:/'
+                            }];
+                        } else if(foundUser.role == "Basic" || foundUser.role == "Team_I"){
+                            driveArray = [{
+                                name:'(I:) Drive',
+                                path:'I:/'
+                            }];
+                        }else if(foundUser.role == "Team_J"){
+                            driveArray = [{
+                                name:'(J:) Drive',
+                                path:'J:/'
+                            }];
+                        }else if(foundUser.role == "Admin"){
+                            driveArray = diskDrives;
+                        }
+                        fs.readdir(driveArray[driveNum].path, (err, files) =>{
                             if(err){
                                 console.log(err)
                                 res.send(err);
@@ -70,7 +107,7 @@ function FilemanagerController(){
                                         if(file != "System Volume Information" && file != "$RECYCLE.BIN"){
                                             var preparedFileObject = {
                                                 name: file,
-                                                path: (diskDrives[driveNum].path+file)
+                                                path: (driveArray[driveNum].path+file)
                                             };
                                             diskFileContents.push(preparedFileObject);
                                         }
@@ -159,36 +196,64 @@ function FilemanagerController(){
             var clientUserAgent = req.headers['user-agent'];
             var ipAddress = req.socket.remoteAddress;
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, role: 'Admin', userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         if(!req.files || Object.keys(req.files).length === 0){
                             res.status(404).send('No files uploaded.');
                         } else {
                             var fileUploadPath = req.body.fileUploadPath;
                             var fileUploadInput = req.files.fileUploadInput;
-                            //
-                            if(fs.existsSync(fileUploadPath)){
-                                fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
-                                    if(err){
-                                        res.status(404).send(err);
-                                    } else {
-                                        res.redirect('/dashboard/filemanager');
-                                    }
-                                });
+                            var isValidTeamK = false;
+                            var isValidTeamI = false;
+                            var isValidTeamJ = false;
+                            var isValidAdmin = false;
+                            // Validate upload priviledges by role
+                            if(foundUser.role == "Team_K"){
+                                var isValidPath = fileUploadPath.indexOf("K:/");
+                                if(isValidPath != -1 && fileUploadPath[0].toLowerCase()=="k" && fileUploadPath[1]==":"){
+                                    isValidTeamK = true;
+                                }
+                            } else if(foundUser.role == "Team_I"){
+                                var isValidPath = fileUploadPath.indexOf("I:/");
+                                if(isValidPath != -1 && fileUploadPath[0].toLowerCase()=="i" && fileUploadPath[1]==":"){
+                                    isValidTeamI = true;
+                                }
+                            } else if(foundUser.role == "Team_J"){
+                                var isValidPath = fileUploadPath.indexOf("J:/");
+                                if(isValidPath != -1 && fileUploadPath[0].toLowerCase()=="j" && fileUploadPath[1]==":"){
+                                    isValidTeamJ = true;
+                                }
+                            } else if(foundUser.role == "Admin"){
+                                isValidAdmin = true;
+                            }
+                            // If you are either Admin or part of a role, isolate to that path only for upload
+                            if(isValidAdmin || isValidTeamK || isValidTeamI || isValidTeamJ){
+                                // Make directory and or upload file to that directory
+                                if(fs.existsSync(fileUploadPath)){
+                                    fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
+                                        if(err){
+                                            res.status(404).send(err);
+                                        } else {
+                                            res.redirect('/dashboard/filemanager');
+                                        }
+                                    });
+                                } else {
+                                    fs.mkdir(fileUploadPath, function(err) {
+                                        if(err){
+                                            res.status(500).send(err);
+                                        } else {
+                                            fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
+                                                if(err){
+                                                    res.status(404).send(err);
+                                                } else {
+                                                    res.redirect('/dashboard/filemanager');
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
                             } else {
-                                fs.mkdir(fileUploadPath, function(err) {
-                                    if(err){
-                                        res.status(500).send(err);
-                                    } else {
-                                        fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
-                                            if(err){
-                                                res.status(404).send(err);
-                                            } else {
-                                                res.redirect('/dashboard/filemanager');
-                                            }
-                                        });
-                                    }
-                                });
+                                res.status(403).send("You must be an administrator to upload files.");
                             }
                         }
                     } else {
@@ -204,15 +269,30 @@ function FilemanagerController(){
             var clientUserAgent = req.headers['user-agent'];
             var ipAddress = req.socket.remoteAddress;
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, role:'Admin', userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
-                        fs.unlink(req.body.filePath, function (err){
-                            if(err){
-                                res.status(500).send(err);
-                            }else {
-                                res.send({message:"File was successfully deleted."});
+                        var isValidTeamK = false;
+                        var isValidAdmin = false;
+                        var fileUploadPath = req.body.filePath;
+                        // Validate role to allow who can delete fies. only team-k and admin can delete
+                        if(foundUser.role == "Team_K"){
+                            if(fileUploadPath[0].toLowerCase()=="k" && fileUploadPath[1]==":"){
+                                isValidTeamK = true;
                             }
-                        });
+                        } else if(foundUser.role =="Admin"){
+                            isValidAdmin = true;
+                        }
+                        // If valid admin or team-k with valid k-path
+                        if(isValidAdmin || isValidTeamK){
+                            fs.unlink(fileUploadPath, function (err){
+                                if(err){
+                                    res.status(500).send(err);
+                                }else {
+                                    res.send({message:"File was successfully deleted."});
+                                }
+                            });
+                        }
+                        
                     } else {
                         res.status(403).send({message:"You must be an administrator to delete files."});
                     }

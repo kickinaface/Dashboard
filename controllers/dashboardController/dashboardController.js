@@ -10,9 +10,9 @@ function DashboardController(){
                 User.findOne({token:heldToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function(err, foundUser){
                     if(foundUser){
                         if(tokenMethods.authenticateToken(heldToken) == true){
-                            if(foundUser.role == "Basic"){
+                            if(foundUser.role != "Admin"){
                                 res.sendFile(pageFile);
-                            } else {
+                            } else if(foundUser.role == "Admin"){
                                 res.sendFile(adminPageFile);
                             }
                         } else {
