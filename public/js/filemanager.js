@@ -103,12 +103,9 @@ function FileManager(){
         document.querySelector(".deleteFileButton").disabled = true;
         document.querySelector(".deleteFileButton").style.opacity = '.5';
         //
-        downloadFile({requestFile:downloadPath}, '/api/dashboard/filemanager/downloadFileFromPath', function (status, data){
-            console.log(status);
-            console.log(data);
-        }, 'POST');
+        downloadFile({requestFile:downloadPath}, '/api/dashboard/filemanager/downloadFileFromPath', 'POST');
         
-        function downloadFile(postData, address, callback, postType){
+        function downloadFile(postData, address, postType){
             that.isDownloading = true;
             var xhr = new XMLHttpRequest();
             var url = address;

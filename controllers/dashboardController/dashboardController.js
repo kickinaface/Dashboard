@@ -171,7 +171,7 @@ function DashboardController(){
                         if(preparedNewpass.newPassword1 != preparedNewpass.newPassword2){
                             res.status(403).send({message:"You must enter the same password twice."});
                         } else if(ValidatePassword(preparedNewpass.newPassword1) == false){
-                            res.status(403).send({message:"Minimum eight characters, at least one letter and one number."});
+                            res.status(403).send({message:"Minimum 10-16 characters, no whitespace, at least one uppercase character, at least one lowercase character, at least one digit, at least one special character."});
                         } else {
                             var bcrypt = require("bcrypt");
                             foundUser.password = bcrypt.hashSync(preparedNewpass.newPassword1, 10);
@@ -190,7 +190,7 @@ function DashboardController(){
     };
 
     function ValidatePassword(password){
-        if(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)){
+        if(/^(?!.*\s)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹]).{10,16}$/.test(password)){
             return (true);
         } else {
             return (false);

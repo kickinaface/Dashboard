@@ -75,7 +75,7 @@ function Dashboard(){
                     "<input type='password'  id='newPassword1' placeholder='new password'><br>"+
                     "<input type='password'  id='newPassword2' placeholder='new password again'>"+
                     "<br>"+
-                    "<i>Minimum eight characters, at least one letter and one number.</i>"+
+                    "<i>Minimum 10-16 characters, no whitespace, at least one uppercase character, at least one lowercase character, at least one digit, at least one special character.</i>"+
                     
                     "<p><button type='submit' onclick='dashboard.changePassword();'>Save</button></p>"+
                     "<br><b>WARNING! Do not forget your new password.</b><br>"+
