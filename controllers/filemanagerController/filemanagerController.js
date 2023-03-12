@@ -14,7 +14,7 @@ function FilemanagerController(){
             path:'K:'
         },
     ];
-    this.init = function init(app, router, pageFile, User){
+    this.init = function init(app, router, pageFile, basicUserFileManagerPage, User){
         var tokenMethods = require("../../controllers/tokenMethods/tokenMethods");
         
         // Page routing
@@ -24,13 +24,18 @@ function FilemanagerController(){
             var ipAddress = req.socket.remoteAddress;
             if(heldToken != undefined){
                 User.findOne({token:heldToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function(err, foundUser){
-                    if(foundUser){
-                        if(tokenMethods.authenticateToken(heldToken) == true){
-                            res.sendFile(pageFile);
-                        } else {
-                            res.redirect("/login");
+                    if(foundUser.role == "Basic"){
+                        res.sendFile(basicUserFileManagerPage);
+                    } else {
+                        if(foundUser){
+                            if(tokenMethods.authenticateToken(heldToken) == true){
+                                res.sendFile(pageFile);
+                            } else {
+                                res.redirect("/login");
+                            }
                         }
                     }
+                    
                 });
             } else{
                 res.redirect("/login");
@@ -44,24 +49,14 @@ function FilemanagerController(){
                 User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
                         if(foundUser.role == "Team_K"){
-                            res.send({drives: [{
-                                name:'(K:) Drive',
-                                path:'K:/'
-                            }]});
+                            res.send({drives: [diskDrives[2]]});
                         } else if(foundUser.role == "Basic" || foundUser.role == "Team_I"){
-                            res.send({drives: [{
-                                name:'(I:) Drive',
-                                path:'I:/'
-                            }]});
+                            res.send({drives: [diskDrives[0]]});
                         }else if(foundUser.role == "Team_J"){
-                            res.send({drives: [{
-                                name:'(J:) Drive',
-                                path:'J:/'
-                            }]});
+                            res.send({drives: [diskDrives[1]]});
                         }else if(foundUser.role == "Admin"){
                             res.send({drives:diskDrives});
                         }
-                        
                     } else {
                         res.sendStatus(403);
                     }
@@ -81,20 +76,11 @@ function FilemanagerController(){
                     if(foundUser){
                         var driveArray = [];
                         if(foundUser.role == "Team_K"){
-                            driveArray = [{
-                                name:'(K:) Drive',
-                                path:'K:/'
-                            }];
+                            driveArray = [diskDrives[2]];
                         } else if(foundUser.role == "Basic" || foundUser.role == "Team_I"){
-                            driveArray = [{
-                                name:'(I:) Drive',
-                                path:'I:/'
-                            }];
+                            driveArray = [diskDrives[0]];
                         }else if(foundUser.role == "Team_J"){
-                            driveArray = [{
-                                name:'(J:) Drive',
-                                path:'J:/'
-                            }];
+                            driveArray = [diskDrives[1]];
                         }else if(foundUser.role == "Admin"){
                             driveArray = diskDrives;
                         }
@@ -212,51 +198,58 @@ function FilemanagerController(){
         router.route("/dashboard/filemanager/uploadFile").post(function (req, res){
             var clientUserAgent = req.headers['user-agent'];
             var ipAddress = req.socket.remoteAddress;
-            if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
-                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
-                    if(foundUser){
-                        if(!req.files || Object.keys(req.files).length === 0){
-                            res.status(404).send('No files uploaded.');
-                        } else {
-                            var fileUploadPath = req.body.fileUploadPath;
-                            var fileUploadInput = req.files.fileUploadInput;
-                            // If you are either Admin or part of a role, isolate to that path only for upload
-                            if(foundUser.role != "Basic" && isValidUserRole(foundUser, fileUploadPath)){
-                                // Make directory and or upload file to that directory
-                                if(fs.existsSync(fileUploadPath)){
-                                    fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
-                                        if(err){
-                                            res.status(404).send(err);
-                                        } else {
-                                            res.redirect('/dashboard/filemanager');
-                                        }
-                                    });
+            if(req.body.fileUploadPath != null && req.files != null){
+                var fileUploadPath = req.body.fileUploadPath;
+                var fileUploadInput = req.files.fileUploadInput;
+                if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
+                    User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
+                        if(foundUser){
+                            if(foundUser.role != "Basic" && isValidUserRole(foundUser, fileUploadPath, true)){
+                                if(!req.files || Object.keys(req.files).length === 0 || !fileUploadPath || !fileUploadInput){
+                                    res.status(404).send({message:'No files were uploaded. Please complete the form.'});
                                 } else {
-                                    fs.mkdir(fileUploadPath, function(err) {
-                                        if(err){
-                                            res.status(500).send(err);
-                                        } else {
-                                            fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
-                                                if(err){
-                                                    res.status(404).send(err);
-                                                } else {
-                                                    res.redirect('/dashboard/filemanager');
-                                                }
-                                            });
-                                        }
-                                    });
+                                    if(fs.existsSync(fileUploadPath)){
+                                        fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
+                                            if(err){
+                                                res.status(404).send(err);
+                                            } else {
+                                                console.log("File was uploaded: ",(fileUploadPath+"/"+fileUploadInput.name))
+                                                res.send({message:"File was successfully uploaded."});
+                                            }
+                                        });
+                                    } else {
+                                        fs.mkdir(fileUploadPath, function(err) {
+                                            if(err){
+                                                res.status(404).send(err);
+                                            } else {
+                                                fileUploadInput.mv((fileUploadPath+"/"+fileUploadInput.name), function (err){
+                                                    if(err){
+                                                        res.status(404).send(err);
+                                                    } else {
+                                                        console.log("File was uploaded: ",(fileUploadPath+"/"+fileUploadInput.name))
+                                                        res.send({message:"File was successfully uploaded."});
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
                                 }
                             } else {
-                                res.status(403).send("You must be an administrator to upload files.");
+                                console.log("Invalid role, is not dowloading");
+                                res.status(403).send({message:"You must be an administrator or have the proper role to upload files."});
                             }
+                        } else {
+                            res.sendStatus(403);
                         }
-                    } else {
-                        res.sendStatus(403);
-                    }
-                });
+                    });
+                } else {
+                    res.sendStatus(403);
+                }
             } else {
-                res.sendStatus(403);
+                res.status(404).send({message:'No files were uploaded. Please complete the form.'});
             }
+            
+            
         });
 
         router.route("/dashboard/filemanager/deleteFile").post(function (req, res){
@@ -267,7 +260,7 @@ function FilemanagerController(){
                     if(foundUser){
                         var fileUploadPath = req.body.filePath;
                         // Validate role to allow who can delete fies. Only admin and team roles can delete
-                        if(isValidUserRole(foundUser, fileUploadPath)){
+                        if(foundUser.role != "Basic" && isValidUserRole(foundUser, fileUploadPath)){
                             fs.unlink(fileUploadPath, function (err){
                                 if(err){
                                     res.status(500).send(err);
@@ -296,24 +289,24 @@ function FilemanagerController(){
             return (/(^|\/)\.[^\/\.]/g).test(path);
         };
 
-        var isValidUserRole = function isValidUserRole(foundUser, filePath){
+        var isValidUserRole = function isValidUserRole(foundUser, filePath, stopBasicUser){
             var isValidTeamK = false;
             var isValidTeamI = false;
             var isValidTeamJ = false;
             var isValidAdmin = false;
-
+            //
             if(foundUser.role == "Team_K"){
-                var isValidPath = filePath.indexOf("K:/");
+                var isValidPath = filePath.indexOf("K:");
                 if(isValidPath != -1 && filePath[0].toLowerCase()=="k" && filePath[1]==":"){
                     isValidTeamK = true;
                 }
-            } else if(foundUser.role == "Team_I" || foundUser.role == "Basic"){
-                var isValidPath = filePath.indexOf("I:/");
+            } else if(foundUser.role == "Team_I" || foundUser.role == "Basic" && stopBasicUser != true){
+                var isValidPath = filePath.indexOf("I:");
                 if(isValidPath != -1 && filePath[0].toLowerCase()=="i" && filePath[1]==":"){
                     isValidTeamI = true;
                 }
             } else if(foundUser.role == "Team_J"){
-                var isValidPath = filePath.indexOf("J:/");
+                var isValidPath = filePath.indexOf("J:");
                 if(isValidPath != -1 && filePath[0].toLowerCase()=="j" && filePath[1]==":"){
                     isValidTeamJ = true;
                 }

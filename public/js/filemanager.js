@@ -163,12 +163,62 @@ function FileManager(){
                     "<input type='file' id='fileUploadInput' name='fileUploadInput' />"+
                     "<p><span>Please specifiy a path below:</span></p>"+
                     "<input type='text' id='fileUploadPath' name='fileUploadPath' placeholder='path/for/file'/>"+
-                    "<p><button type='submit'>Upload File</button></p>"+
+                    "<br>"+
+                    "<progress id='uploadProgressBar' value='0' max='100' style='width:300px;'></progress>"+
+                    "<h3 id='uploadStatus'></h3>"+
+                    // "<p id='loaded_n_total'></p>"+
+                    "<p><button onclick='fileManager.uploadFile(event)' id='uploadFileBtn'>Upload File</button></p>"+
                     "<div class='modalMessages'></div>"+
                 "</form>"+
                 '<div class="closeModal" onclick="fileManager.closeModal()">Close (X)</div>'+
             '</div>';
     };
+
+    this.uploadFile = function uploadFile(e){
+        e.preventDefault();
+        var uploadFileForm = document.querySelector(".uploadFileForm");
+        var formdata = new FormData(uploadFileForm);
+        var ajax = new XMLHttpRequest();
+        ajax.upload.addEventListener("progress", progressHandler, false);
+        ajax.addEventListener("load", completeHandler, false);
+        ajax.addEventListener("error", errorHandler, false);
+        ajax.addEventListener("abort", abortHandler, false);
+        ajax.open("POST", uploadFileForm.action);
+        
+        function progressHandler(event) {
+            console.log("event while loading: ",event.target);
+            // document.querySelector("#loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total;
+            var percent = (event.loaded / event.total) * 100;
+            document.querySelector("#uploadProgressBar").value = Math.round(percent);
+            document.querySelector("#uploadStatus").innerHTML = Math.round(percent) + "% uploaded... please wait";
+            document.querySelector(".closeModal").style.display = "none";
+            document.querySelector("#uploadFileBtn").style.display = "none";
+        }
+          
+        function completeHandler(event) {
+            var responseMessage = JSON.parse(event.target.responseText);
+            if(event.target.status == 200){
+                document.querySelector("#uploadFileBtn").style.display = "none";
+            } else {
+                document.querySelector("#uploadProgressBar").value = 0;
+            }
+            
+            document.querySelector("#uploadStatus").innerHTML = responseMessage.message;
+            document.querySelector(".closeModal").style.display = "block";
+        }
+        
+        function errorHandler(event) {
+            console.log("error: ",event);
+            document.querySelector("#uploadStatus").innerHTML = "Upload Failed";
+        }
+        
+        function abortHandler(event) {
+             console.log("error: ",event);
+            document.querySelector("#uploadStatus").innerHTML = "Upload Aborted";
+        }
+
+        ajax.send(formdata);
+    }
 
     this.deleteFileFromPath = function deleteFileFromPath(filePath){
         document.querySelector(".downloadButton").disabled = true;
