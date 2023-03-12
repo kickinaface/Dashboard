@@ -153,6 +153,9 @@ button{
     background-color: white;
     padding: 15px;
 }
+#uploadProgressBar::-moz-progress-bar { background: chartreuse; }
+#uploadProgressBar::-webkit-progress-value { background: chartreuse; }
+#uploadProgressBar { background: chartreuse; }
 
 /* Media Queries for mobile */
 @media (max-width: 800px) {

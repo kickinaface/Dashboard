@@ -54,7 +54,7 @@ logoutController.init(app, router, (__dirname+'/pages/logout.html'), UserModel);
 registerController.init(app, router, (__dirname+'/pages/register.html'), UserModel);
 indexController.init(app, router, (__dirname+'/public/index.html'), UserModel);
 dashboardController.init(app, router, (__dirname+'/pages/dashboard.html'), (__dirname+'/pages/adminDashboard.html'), UserModel);
-filemanagerController.init(app, router, (__dirname+'/pages/filemanager.html'), UserModel);
+filemanagerController.init(app, router, (__dirname+'/pages/filemanager.html'), (__dirname+'/pages/basicUserFileManager.html'), UserModel);
 interactiveController.init(app, router, (__dirname+'/pages/interactive.html'), UserModel);
 
 app.use('/api', router);
