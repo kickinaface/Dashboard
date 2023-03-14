@@ -49,17 +49,23 @@
                 //
                 superUtil.grabJSON(('/api/dashboard/filemanager/showDriveContents/'+driveNumIndex), function(status, data){
                     if(status == 200){
+                        // Hide Modal, show drive contents
                         document.querySelector('.fullScreenWrapper').style.display = 'none';
                         document.querySelector('.driveContentsWrapper ul').innerHTML = '';
                         document.querySelector('.driveContentsWrapper').style.display = 'block';
-                        //document.querySelector('.fullScreenWrapper').style.display = 'none';
+                        // Loop through data and format click event 
                         for(var d=0; d<=data.length-1; d++){
                             var formattedString = (data[d].path);
+                            // If path contains a string replace it with %20 to avoid error from loading file or directory
                             if(formattedString.includes(" ")){
-                                console.log('space')
+                                formattedString = formattedString.replaceAll(/\s/g, '%20');
                             }
-                            document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick='fileManager.getContentsFromPath(`"+formattedString+"`);'>"+data[d].name+"</li>";
+                            document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+formattedString+"');>"+data[d].name+"</li>";
                         }
+                        currentPath = (data[0].path).slice(0,(data[0].path).lastIndexOf(":"))+":";
+                        // Remove %20 from path name to avoid errors in uploading with path
+                        currentPath = currentPath.replaceAll("%20", " ");
+                        document.querySelector(".currentPath").innerHTML = "<i>Current Path: </i>"+currentPath;
                     }else {
                         // TODO: Handle Error messages
                         console.log(status);
@@ -94,13 +100,23 @@
                             document.querySelector('.driveContentsWrapper ul').innerHTML = '';
                             document.querySelector('.driveContentsWrapper').style.display = 'block';
                             //
+                            currentPath = path;
+                            // Remove %20 from path name to avoid errors in uploading with path
+                            currentPath = currentPath.replaceAll("%20", " ");
+                            document.querySelector(".currentPath").innerHTML = ("<i>Current Path: </i>")+currentPath;
                             for(var d=0; d<=data.length-1; d++){
-                                document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+data[d].path+"')>"+data[d].name+"</li>";
+                                var filePath = data[d].path;
+                                // If path contains a string replace it with %20 to avoid error from loading file or directory
+                                if(filePath.includes(" ")){
+                                    filePath = filePath.replaceAll(/\s/g, '%20');
+                                }
+                                document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+filePath+"');>"+data[d].name+"</li>";
                             }
                         }
                         
                     } else {
-                        // TODO: Handle Error messages
+                        // Handle Error messages
+                        document.querySelector('.fullScreenWrapper').style.display = "none";
                         console.log(status);
                         console.log(data);
                     }
@@ -212,6 +228,9 @@
         </div>
         <br>
         <br>
+        <br>
+        <br>
+        <div class="currentPath"></div>
         <br>
         <br>
         <div class="driveContentsWrapper">

@@ -2,6 +2,7 @@ var superUtil = new SuperUtil();
 
 function FileManager(){
     var that = this;
+    var currentPath = "";
     this.init = function init(){
         setInterval(function (){
             checkToken();
@@ -39,17 +40,23 @@ function FileManager(){
         //
         superUtil.grabJSON(('/api/dashboard/filemanager/showDriveContents/'+driveNumIndex), function(status, data){
             if(status == 200){
+                // Hide Modal, show drive contents
                 document.querySelector('.fullScreenWrapper').style.display = 'none';
                 document.querySelector('.driveContentsWrapper ul').innerHTML = '';
                 document.querySelector('.driveContentsWrapper').style.display = 'block';
-                //document.querySelector('.fullScreenWrapper').style.display = 'none';
+                // Loop through data and format click event 
                 for(var d=0; d<=data.length-1; d++){
                     var formattedString = (data[d].path);
+                    // If path contains a string replace it with %20 to avoid error from loading file or directory
                     if(formattedString.includes(" ")){
-                        console.log('space')
+                        formattedString = formattedString.replaceAll(/\s/g, '%20');
                     }
-                    document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick='fileManager.getContentsFromPath(`"+formattedString+"`);'>"+data[d].name+"</li>";
+                    document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+formattedString+"');>"+data[d].name+"</li>";
                 }
+                currentPath = (data[0].path).slice(0,(data[0].path).lastIndexOf(":"))+":";
+                // Remove %20 from path name to avoid errors in uploading with path
+                currentPath = currentPath.replaceAll("%20", " ");
+                document.querySelector(".currentPath").innerHTML = "<i>Current Path: </i>"+currentPath;
             }else {
                 // TODO: Handle Error messages
                 console.log(status);
@@ -84,13 +91,23 @@ function FileManager(){
                     document.querySelector('.driveContentsWrapper ul').innerHTML = '';
                     document.querySelector('.driveContentsWrapper').style.display = 'block';
                     //
+                    currentPath = path;
+                    // Remove %20 from path name to avoid errors in uploading with path
+                    currentPath = currentPath.replaceAll("%20", " ");
+                    document.querySelector(".currentPath").innerHTML = ("<i>Current Path: </i>")+currentPath;
                     for(var d=0; d<=data.length-1; d++){
-                        document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+data[d].path+"')>"+data[d].name+"</li>";
+                        var filePath = data[d].path;
+                        // If path contains a string replace it with %20 to avoid error from loading file or directory
+                        if(filePath.includes(" ")){
+                            filePath = filePath.replaceAll(/\s/g, '%20');
+                        }
+                        document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+filePath+"');>"+data[d].name+"</li>";
                     }
                 }
                 
             } else {
-                // TODO: Handle Error messages
+                // Handle Error messages
+                document.querySelector('.fullScreenWrapper').style.display = "none";
                 console.log(status);
                 console.log(data);
             }
@@ -151,6 +168,8 @@ function FileManager(){
             alert("You must not close the window while downloading the file.");
         } else if(that.isDownloading == false){
             document.querySelector(".fullScreenWrapper").style.display = 'none';
+            // Reload the contents
+            that.getContentsFromPath(currentPath);
         }
     }
 
@@ -162,7 +181,7 @@ function FileManager(){
                 "<form action='/api/dashboard/filemanager/uploadFile' method='post' enctype='multipart/form-data' class='uploadFileForm'>"+
                     "<input type='file' id='fileUploadInput' name='fileUploadInput' />"+
                     "<p><span>Please specifiy a path below:</span></p>"+
-                    "<input type='text' id='fileUploadPath' name='fileUploadPath' placeholder='path/for/file'/>"+
+                    "<input type='text' id='fileUploadPath' name='fileUploadPath' placeholder='path/for/file'/ value='"+currentPath+"'>"+
                     "<br>"+
                     "<progress id='uploadProgressBar' value='0' max='100' style='width:300px;'></progress>"+
                     "<h3 id='uploadStatus'></h3>"+
@@ -186,7 +205,6 @@ function FileManager(){
         ajax.open("POST", uploadFileForm.action);
         
         function progressHandler(event) {
-            console.log("event while loading: ",event.target);
             // document.querySelector("#loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total;
             var percent = (event.loaded / event.total) * 100;
             document.querySelector("#uploadProgressBar").value = Math.round(percent);
@@ -228,7 +246,9 @@ function FileManager(){
         //
         superUtil.sendJSON({filePath:filePath},"/api/dashboard/filemanager/deleteFile", function (status, data){
             if(status == 200){
-                window.location.reload();
+                // Reload the contents
+                that.getContentsFromPath(currentPath);
+                //window.location.reload();
             } else {
                 document.querySelector(".downloadStatusMessages").innerHTML = "<span class='red'>"+data.message+"</span>";
             }

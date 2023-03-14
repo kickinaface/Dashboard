@@ -157,6 +157,11 @@ button{
 #uploadProgressBar::-webkit-progress-value { background: chartreuse; }
 #uploadProgressBar { background: chartreuse; }
 
+.currentPath {
+    float: left;
+    width: 100%;
+}
+
 /* Media Queries for mobile */
 @media (max-width: 800px) {
     .navList{

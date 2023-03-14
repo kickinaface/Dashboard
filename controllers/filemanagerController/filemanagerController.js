@@ -24,16 +24,23 @@ function FilemanagerController(){
             var ipAddress = req.socket.remoteAddress;
             if(heldToken != undefined){
                 User.findOne({token:heldToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function(err, foundUser){
-                    if(foundUser.role == "Basic"){
-                        res.sendFile(basicUserFileManagerPage);
-                    } else {
-                        if(foundUser){
-                            if(tokenMethods.authenticateToken(heldToken) == true){
-                                res.sendFile(pageFile);
+                    if(err){
+                        res.send(err);
+                    }
+                    if(foundUser){
+                        if(tokenMethods.authenticateToken(heldToken) == true){
+                            if(foundUser.role == "Basic"){
+                                res.sendFile(basicUserFileManagerPage);
                             } else {
-                                res.redirect("/login");
+                                res.sendFile(pageFile);
                             }
+                            
+                        } else {
+                            res.redirect("/login");
                         }
+                        
+                    } else {
+                        res.redirect("/login");
                     }
                     
                 });
@@ -119,6 +126,8 @@ function FilemanagerController(){
             var requestedPath = req.body.requestPath;
             var clientUserAgent = req.headers['user-agent'];
             var ipAddress = req.socket.remoteAddress;
+            // Decode url do allow for %20 in path.
+            requestedPath = decodeURIComponent(requestedPath);
             //
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
                 User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
