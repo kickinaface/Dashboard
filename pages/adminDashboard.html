@@ -16,7 +16,7 @@
             subContentWrapper.innerHTML = "";
             superUtil.grabJSON('/api/dashboard/getAllUsers', function (status, data) {
                 if(status == 200){
-                    
+                    console.log("data: ", data)
                     for(var u=0; u<=data.length-1; u++){
                         var user_id =data[u]._id;
                         subContentWrapper.innerHTML+= "<div class='singleUser'><i>_id: </i><span class='user_id'>"+data[u]._id+
@@ -119,7 +119,7 @@
             <ul>
                 <li onclick="window.location='/dashboard'"><u>Dashboard</u></li>
                 <li onclick="window.location='/dashboard/filemanager'">File Manager</li>
-                <li onclick="window.location='/dashboard/interactive'">Interactive</li>
+                <li onclick="window.location='/dashboard/messages'">Messages</li>
                 <li onclick="window.location='/logout'">Logout</li>
             </ul>
         </div>

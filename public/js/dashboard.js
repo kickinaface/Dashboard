@@ -7,7 +7,7 @@ function Dashboard(){
         }, (1000*60)*5);
 
         
-        // Update Name
+        // Display Name
         superUtil.grabJSON('/api/dashboard/getName', function (status, data) {
             if(status == 200){
                 document.querySelector('.usersName').innerHTML = data.name;

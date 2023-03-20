@@ -1,0 +1,105 @@
+.usersList, .globalChatWrapper, .MyMessagesWrapper{
+    display: none;
+}
+
+    .usersList ul li{
+        list-style: none;
+        background:white;
+        padding-left:10px
+    }
+        .usersList ul li button{
+            padding: 5px;
+            border-radius: 6px;
+        }
+
+.globalChatWrapper, .MyMessagesWrapper{
+    padding: 10px;
+    background: white;
+}
+    .globalChatWrapper input{
+        width: 90%;
+        float: left;
+    }
+
+    .globalChatWrapper ul li{
+        list-style: none;
+        padding-left: 10px;
+    }
+
+#shortMessage{
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+    font-size: 12pt;
+    padding:10px;
+
+}
+
+.leftPanel{
+    width: 100%;
+    background: #c41717;
+    padding: 10px;
+}
+.conversationWrapper{
+    width: 100%;
+    /* background: #c41717; */
+    display:none;
+    padding:5px 0px 5px 0px;
+}
+.conversationWrapper input{
+    width: 90%;
+}
+.conversationWrapper button{
+    /* border:1px solid black;
+    background: #efefef;
+    color:black;
+    font-weight: bold; */
+    width: 110px;
+}
+.conversationWrapper ul{
+    margin-top: 10px;
+}
+.conversationWrapper ul li{
+    list-style: none;
+    padding: 5px 10px 5px 10px;
+}
+.conversationWrapper h3, .conversationWrapper h2{
+    margin-left:10px;
+}
+    .leftPanelAvatar{
+        float: left;
+        padding-right: 10px;
+    }
+
+.messageWrapper{
+    background: #efefef;
+    height: 45px;
+    padding: 10px;
+    cursor: pointer;
+}
+.userEmailAddress{
+    width: 200px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+}
+.leftMessage{
+    text-align: left;
+    background:white;
+    border:2px solid #c2c2c2;
+    padding:10px;
+}
+    .leftMessage .chatAvatar {
+        float: left;
+        padding-right: 10px;
+    }
+.rightMessages{
+    text-align: right;
+    background:#efefef;
+    border:2px solid #adadad;
+    padding:10px;
+}
+
+    .rightMessages .chatAvatar {
+        float: right;
+        padding-left: 10px;
+    }
+

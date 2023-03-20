@@ -39,7 +39,7 @@ function DashboardController(){
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
                 User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
-                        res.send({name:(foundUser.firstName + ' '+ foundUser.lastName)})
+                        res.send({name:(foundUser.firstName + ' '+ foundUser.lastName), email:foundUser.username});
                     }
                 });
             } else {

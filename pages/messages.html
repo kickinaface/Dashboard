@@ -9,8 +9,10 @@
     <script src="/js/superUtilBase.js"></script>
     <link rel="stylesheet" href="/css/main.css">
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/interactive.js"></script>
-    <link rel="stylesheet" href="/css/interactive.css">
+    <script src="/js/messages.js"></script>
+    <script src="/js/lodash.js"></script>
+    <script src="/js/moment.js"></script>
+    <link rel="stylesheet" href="/css/messages.css">
 </head>
 <body>
     <div class="fullScreenWrapper"></div>
@@ -20,15 +22,16 @@
             <ul>
                 <li onclick="window.location='/dashboard'">Dashboard</li>
                 <li onclick="window.location='/dashboard/filemanager'">File Manager</li>
-                <li onclick="window.location='/dashboard/interactive'"><u>Interactive</u></li>
+                <li onclick="window.location='/dashboard/messages'"><u>Messages</u></li>
                 <li onclick="window.location='/logout'">Logout</li>
             </ul>
         </div>
     </div>
     <div class="mainContent">
-        <h1>Interactive</h1>
-        Welcome to Interactive. You can interact live with other users. Check out the Web Socket programs below.
+        <h1>Messages</h1>
+        Welcome to Messages. You can interact live with other users. Check out the Web Socket programs below.
         <div class="interactiveActions">
+            <button onclick="messagesControl.getMyMessages();">My Messages</button>
             <button onclick="interactive.showUsers();">Show Users</button>
             <button onclick="interactive.showGlobalChat();">Global Chat</button>
         </div>
@@ -40,6 +43,17 @@
             <ul></ul>
             <input type="text" placeholder="Type Short text here" id="globalChatInputField">
             <button onclick="interactive.sendGlobalMessage();">Send</button>
+        </div>
+        <div class="MyMessagesWrapper">
+            
+            <div class="leftPanel"></div>
+            <div class="conversationWrapper">
+                <h2>Conversation with: <span id="chattingWith"></span></h2>
+                <h3 style="display: none;">Email: <span id="chattingWithEmail"></span></h3>
+                <button onclick="messagesControl.sendMessageInConversation()">Send Message</button>
+                <ul></ul>
+                <!-- <input type="text" placeholder="Enter a short message."> -->
+            </div>
         </div>
     </div>
 </body>

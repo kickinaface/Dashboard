@@ -13,8 +13,9 @@ const ioHelper = require('./controllers/serviceMethods/socket.io.helper');
 //app.use(helmet()); // when you ready to fix some code.
 var serverCert = 
 {
-	cert: fs.readFileSync('cert.pem'),
-	key: fs.readFileSync("key.pem")
+	cert: (fs.readFileSync('./certificates/cert.pem') + fs.readFileSync('./certificates/ca.pem')),
+	key: fs.readFileSync("./certificates/cert-key.pem"),
+	ca: (fs.readFileSync('./certificates/ca-key.pem') + fs.readFileSync('./certificates/ca.pem'))
 };
 
 mongoose.connect(dbUrl);
@@ -22,6 +23,7 @@ mongoose.connect(dbUrl);
 const fileUpload = require('express-fileupload');
 //
 const UserModel = require('./models/user');
+const MessageModel = require('./models/message');
 const loginController = require('./controllers/loginController/loginController');
 const registerController = require('./controllers/registerController/registerController');
 const dashboardController = require('./controllers/dashboardController/dashboardController');
@@ -39,7 +41,7 @@ app.use(bodyParser.json({limit:'50mb'}));
 app.use(cookieParser());
 app.use(fileUpload({useTempFiles: true}));
 //
-var port = process.env.PORT || 3000;	//set port
+var port = process.env.PORT || 443;	//set port
 
 //Router for the api
 var router = express.Router();		//get an instance of the express router
@@ -55,7 +57,7 @@ registerController.init(app, router, (__dirname+'/pages/register.html'), UserMod
 indexController.init(app, router, (__dirname+'/public/index.html'), UserModel);
 dashboardController.init(app, router, (__dirname+'/pages/dashboard.html'), (__dirname+'/pages/adminDashboard.html'), UserModel);
 filemanagerController.init(app, router, (__dirname+'/pages/filemanager.html'), (__dirname+'/pages/basicUserFileManager.html'), UserModel);
-interactiveController.init(app, router, (__dirname+'/pages/interactive.html'), UserModel);
+interactiveController.init(app, router, (__dirname+'/pages/messages.html'), UserModel, MessageModel);
 
 app.use('/api', router);
 app.use(express.static(__dirname + '/public'));
