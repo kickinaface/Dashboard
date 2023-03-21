@@ -47,15 +47,21 @@ function FileManager(){
                 // Loop through data and format click event 
                 for(var d=0; d<=data.length-1; d++){
                     var formattedString = (data[d].path);
-                    // If path contains a string replace it with %20 to avoid error from loading file or directory
+                    // If path contains a space replace it with %20 to avoid error from loading file or directory
                     if(formattedString.includes(" ")){
                         formattedString = formattedString.replaceAll(/\s/g, '%20');
+                    }
+                    // If path contains a single quote replace it with %27 to avoid error from loading file or directory
+                    if(formattedString.includes("'")){
+                        formattedString = formattedString.replaceAll(/'/g, '%27');
                     }
                     document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+formattedString+"');>"+data[d].name+"</li>";
                 }
                 currentPath = (data[0].path).slice(0,(data[0].path).lastIndexOf(":"))+":";
                 // Remove %20 from path name to avoid errors in uploading with path
                 currentPath = currentPath.replaceAll("%20", " ");
+                // Remove %27 from path name to avoid errors in uploading with path
+                currentPath = currentPath.replaceAll("%27", "'");
                 document.querySelector(".currentPath").innerHTML = "<i>Current Path: </i>"+currentPath;
             }else {
                 // TODO: Handle Error messages
@@ -94,12 +100,18 @@ function FileManager(){
                     currentPath = path;
                     // Remove %20 from path name to avoid errors in uploading with path
                     currentPath = currentPath.replaceAll("%20", " ");
+                    // Remove %27 from path name to avoid errors in uploading with path
+                    currentPath = currentPath.replaceAll("%27", "'");
                     document.querySelector(".currentPath").innerHTML = ("<i>Current Path: </i>")+currentPath;
                     for(var d=0; d<=data.length-1; d++){
                         var filePath = data[d].path;
-                        // If path contains a string replace it with %20 to avoid error from loading file or directory
+                        // If path contains a space replace it with %20 to avoid error from loading file or directory
                         if(filePath.includes(" ")){
                             filePath = filePath.replaceAll(/\s/g, '%20');
+                        }
+                        // If path contains a single quote replace it with %27 to avoid error from loading file or directory
+                        if(filePath.includes("'")){
+                            filePath = filePath.replaceAll(/'/g, '%27');
                         }
                         document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+filePath+"');>"+data[d].name+"</li>";
                     }

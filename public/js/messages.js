@@ -116,6 +116,8 @@ function MessagesControl(){
     var myMessages = [];
     var conversationIsOpen = false;
     var currentUserEmail;
+    var oldMessagesLength = 0;
+    var oldConversationLength = 0;
     //
     this.init = function init(){
         //getMessages();
@@ -153,9 +155,8 @@ function MessagesControl(){
         document.querySelector(".MyMessagesWrapper").style.display = "block";
         document.querySelector(".conversationWrapper").style.display ="none";
         document.querySelector(".leftPanel").style.display ="block";
-        setTimeout(function(){
-            getMessagesFromServer();
-        },500);
+        conversationIsOpen = false;
+        getMessagesFromServer();
     }
 
     function getMessagesFromServer(){
@@ -166,8 +167,6 @@ function MessagesControl(){
                 superUtil.grabJSON("/api/dashboard/messages", function(status, data){
                     if(status == 200){
                         var dataList = Object.entries(data);
-                        console.log("dataList: ", dataList);
-                        console.log("dataList length ",dataList.length);
                         var numConversations = dataList.length;
                         var allCombinedMessages = [];
                         // Empty the array of the previous messages
@@ -183,30 +182,41 @@ function MessagesControl(){
                         }
                         
                         var leftPanel = document.querySelector(".leftPanel");
-                        // Reset and build the left panel;
-                        leftPanel.innerHTML = "";
-                        for(var i =0; i<=dataList.length-1; i++){
-                            var userEmailAddress = dataList[i][0];
-                            var usersDisplayName = dataList[i][1][0].name;
-        
-                            if(userEmailAddress == currentUserEmail){
-                                // Do nothing these are your messages
-                            } else {
-                                leftPanel.innerHTML += '<div class="messageWrapper" onclick=messagesControl.loadMessagesWithUser("'+userEmailAddress+'");>'+
-                                                            '<div class="messageicon">'+
-                                                                '<img class="leftPanelAvatar" src="/img/default-image.png" width="50px;" alt="">'+
-                                                                    '<div class="messagePreview">'+
-                                                                        '<div class="messageFromUser">'+usersDisplayName+'</div>'+
-                                                                    '</div>'+
-                                                            '</div>'+
-                                                            '<div class="userEmailAddress">'+userEmailAddress+'</div>'+
-                                                        '</div>';
+                        // Only update the interface if we have new messages
+                        if(myMessages.length > oldMessagesLength || myMessages.length < oldMessagesLength){
+                            // Set new and old message values to be compared for populating new messages
+                            oldMessagesLength = myMessages.length;
+                            // Reset and build the left panel;
+                            leftPanel.innerHTML = "";
+                            for(var i =0; i<=dataList.length-1; i++){
+                                var userEmailAddress = dataList[i][0];
+                                var usersDisplayName = dataList[i][1][0].name;
+                                var creationDate = dataList[i][1][0].creationDate;
+            
+                                if(userEmailAddress == currentUserEmail){
+                                    // Do nothing these are your messages
+                                } else {
+                                    var formattedDate = moment(creationDate).format('MMMM DD, YYYY h:mm a');
+                                    leftPanel.innerHTML += '<div class="messageWrapper" onclick=messagesControl.loadMessagesWithUser("'+userEmailAddress+'");>'+
+                                                                '<div class="messageicon">'+
+                                                                    '<img class="leftPanelAvatar" src="/img/default-image.png" width="50px;" alt="">'+
+                                                                        '<div class="messagePreview">'+
+                                                                            '<div class="messageFromUser">'+usersDisplayName+'</div>'+
+                                                                        '</div>'+
+                                                                '</div>'+
+                                                                '<div class="userEmailAddress">'+userEmailAddress+'</div>'+
+                                                                '<div class="messageCreationDate">'+formattedDate+'</div>'+
+                                                            '</div>';
+                                }
                             }
                         }
+                        
                     } else {
-                        console.log(status);
+                        console.log(status, data);
                     }
                 });
+            } else {
+                console.log(status, data);
             }
         });
     }
@@ -229,40 +239,46 @@ function MessagesControl(){
             }
 
             if(m == myMessages.length-1){
-                // Format the conversation by date
-                var sortedConversation = _.sortBy(conversation, function(o) { return new moment(o.creationDate); }).reverse();
-                // Clear out previous content for updated content
-                conversationList.innerHTML="";
-                document.querySelector(".conversationWrapper").style.display ="block";
-                for(var convo = 0; convo<=sortedConversation.length-1;convo++){
-                    var formattedDate = moment(sortedConversation[convo].creationDate).format('MMMM DD, YYYY');
-                    //
-                    if(sortedConversation[convo].toUser == currentUserEmail) {
-                        //sendMessageToUser = sortedConversation[convo].fromUser;
-                        conversationList.innerHTML+= "<li>"+
-                                            "<div class='leftMessage'>"+
-                                                "<div class='chatAvatar'><img src='/img/default-image.png' width='50px;'></div>"+
-                                                "From: "+sortedConversation[convo].name+
-                                                "<br/>"+
-                                                "Date: "+formattedDate+
-                                                "<br/>"+
-                                                "<p>"+sortedConversation[convo].message+"</p>"+
-                                            "</div>"+
-                                        "</li>";
-                    } else {
-                        //sendMessageToUser = sortedConversation[convo].toUser;
-                        conversationList.innerHTML+= "<li>"+
-                                            "<div class='rightMessages'>"+
-                                                "<div class='chatAvatar'><img src='/img/default-image.png' width='50px;'></div>"+
-                                                "From: You"+
-                                                "<br/>"+
-                                                "Date: "+formattedDate+
-                                                "<br/>"+
-                                                "<p>"+sortedConversation[convo].message+"</p>"+
-                                            "</div>"+
-                                        "</li>";
+                // Only update the interface if we have new messages
+                if(conversation.length > oldConversationLength || conversation.length < oldConversationLength){
+                    // Set new and old message values to be compared for populating new messages
+                    oldConversationLength = conversation.length;
+                    // Format the conversation by date
+                    var sortedConversation = _.sortBy(conversation, function(o) { return new moment(o.creationDate); }).reverse();
+                    // Clear out previous content for updated content
+                    conversationList.innerHTML="";
+                    document.querySelector(".conversationWrapper").style.display ="block";
+                    for(var convo = 0; convo<=sortedConversation.length-1;convo++){
+                        var formattedDate = moment(sortedConversation[convo].creationDate).format('MMMM DD, YYYY h:mm a');
+                        //
+                        if(sortedConversation[convo].toUser == currentUserEmail) {
+                            //sendMessageToUser = sortedConversation[convo].fromUser;
+                            conversationList.innerHTML+= "<li>"+
+                                                "<div class='leftMessage'>"+
+                                                    "<div class='chatAvatar'><img src='/img/default-image.png' width='50px;'></div>"+
+                                                    "From: "+sortedConversation[convo].name+
+                                                    "<br/>"+
+                                                    "Date: "+formattedDate+
+                                                    "<br/>"+
+                                                    "<p>"+sortedConversation[convo].message+"</p>"+
+                                                "</div>"+
+                                            "</li>";
+                        } else {
+                            //sendMessageToUser = sortedConversation[convo].toUser;
+                            conversationList.innerHTML+= "<li>"+
+                                                "<div class='rightMessages'>"+
+                                                    "<div class='chatAvatar'><img src='/img/default-image.png' width='50px;'></div>"+
+                                                    "From: You"+
+                                                    "<br/>"+
+                                                    "Date: "+formattedDate+
+                                                    "<br/>"+
+                                                    "<p>"+sortedConversation[convo].message+"</p>"+
+                                                "</div>"+
+                                            "</li>";
+                        }
                     }
                 }
+                
             }
         }
     }
@@ -273,12 +289,11 @@ function MessagesControl(){
     }
 
     setInterval(function (){
-        console.log("getting messages")
         getMessagesFromServer();
         if(conversationIsOpen){
             that.loadMessagesWithUser(document.querySelector("#chattingWithEmail").innerHTML);
         }
-    },10000);
+    },5000);
 }
 var messagesControl = new MessagesControl();
 messagesControl.init();

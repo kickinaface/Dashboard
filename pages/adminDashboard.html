@@ -16,7 +16,6 @@
             subContentWrapper.innerHTML = "";
             superUtil.grabJSON('/api/dashboard/getAllUsers', function (status, data) {
                 if(status == 200){
-                    console.log("data: ", data)
                     for(var u=0; u<=data.length-1; u++){
                         var user_id =data[u]._id;
                         subContentWrapper.innerHTML+= "<div class='singleUser'><i>_id: </i><span class='user_id'>"+data[u]._id+

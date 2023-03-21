@@ -40,7 +40,7 @@ function InteractiveController(){
                                     // Loop through all messages and place all associated messages together by user
                                     for(let m = 0; m<= msgs.length-1; m++){
                                         // Put all messages with users name both to and from in array
-                                        if(msgs[m].toUser == foundUser.username || msgs[m].fromUser == foundUser.username){
+                                        if(msgs[m].toUser == foundUser.username || msgs[m].fromUser == foundUser.username){                                            
                                             // For each message, find the from user and set their name
                                             User.findOne({username:msgs[m].fromUser}, function(err, user){
                                                 if(err){
@@ -57,28 +57,23 @@ function InteractiveController(){
                                                     }
                                                     // Push the newly prepared object to the array
                                                     preparedMessages.push(preparedMessageObject);
-                                                    
-                                                    // At the end of the loop, re-arrange and sort the message array
-                                                    if(m == msgs.length-1){
-                                                        setTimeout(function(){
-                                                            //Sort by most recent date
-                                                            var newMessages = _.sortBy(preparedMessages, function(o){
-                                                                return new moment(o.createdDate);
-                                                            }).reverse();
-
-                                                            // Create new Object that is grouped by fromUser
-                                                            var groupedMessages = _.groupBy(newMessages, function(o){
-                                                                return o.fromUser;
-                                                            });
-                                                            //
-                                                            res.send(groupedMessages);
-                                                        },500);
-                                                    }
                                                 }
                                             });
-                                            
                                         }
                                     }
+                                    setTimeout(function(){
+                                        //Sort by most recent date
+                                        var newMessages = _.sortBy(preparedMessages, function(o){
+                                            return new moment(o.createdDate);
+                                        }).reverse();
+
+                                        // Create new Object that is grouped by fromUser
+                                        var groupedMessages = _.groupBy(newMessages, function(o){
+                                            return o.fromUser;
+                                        });
+                                        //
+                                        res.send(groupedMessages);
+                                    },1000);
                                 }
                             });
                         } else {

@@ -132,36 +132,47 @@ function FilemanagerController(){
             if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
                 User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
                     if(foundUser){
+                        if(err){
+                            console.log(err);
+                            res.status(404).send({message:err});
+                        }
                         // Validate upload priviledges by role
                         if(isValidUserRole(foundUser, requestedPath)){
-                            if(fs.statSync(requestedPath).isDirectory() == true){
-                                // Load directory it is not a file.
-                                fs.readdir(requestedPath, (err, files) =>{
-                                    var folderContents = [];
-                                    //
-                                    if(files != undefined){
-                                        files.forEach(file => {
-                                            if(!isUnixHiddenPath(file)){
-                                                if(file != "System Volume Information" && file != "$RECYCLE.BIN"){
-                                                    var preparedFileObject = {
-                                                        name: file,
-                                                        path: (requestedPath+"/"+file)
-                                                    };
-                                                    folderContents.push(preparedFileObject);
-                                                }
+                            fs.stat(requestedPath, function(err, stats){
+                                if(err){
+                                    res.status(403).send({message:err})
+                                } else {
+                                    if(stats.isDirectory() == true){
+                                        // Load directory it is not a file.
+                                        fs.readdir(requestedPath, (err, files) =>{
+                                            var folderContents = [];
+                                            //
+                                            if(files != undefined){
+                                                files.forEach(file => {
+                                                    if(!isUnixHiddenPath(file)){
+                                                        if(file != "System Volume Information" && file != "$RECYCLE.BIN"){
+                                                            var preparedFileObject = {
+                                                                name: file,
+                                                                path: (requestedPath+"/"+file)
+                                                            };
+                                                            folderContents.push(preparedFileObject);
+                                                        }
+                                                    }
+                                                });
+                                                res.send(folderContents);
+                                            } else {
+                                                res.status(403).send({message:"This file cannot be opened."});
                                             }
                                         });
-                                        res.send(folderContents);
-                                    } else {
-                                        res.status(403).send({message:"This file cannot be opened."})
+                                    } else if(stats.isFile() == true){
+                                        // Show file it is not a directory
+                                        res.send({filePath:requestedPath});
                                     }
-                                });
-                            } else if(fs.statSync(requestedPath).isDirectory() == false){
-                                // show file it is not a directory
-                                res.send({filePath:requestedPath});
-                            }
+                                }
+                            });
+                            
                         } else {
-                            res.status(403).send({message:"You must be an admin to open these files/folders"})
+                            res.status(403).send({message:"You must be an admin to open these files/folders"});
                         }
                     } else {
                         res.sendStatus(403);
