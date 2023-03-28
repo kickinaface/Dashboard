@@ -1,0 +1,20 @@
+#shortTaskMessage, #shortStepMessage{
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+    font-size: 12pt;
+    padding:10px;
+}
+
+.myTasksWrapper, .singleTaskWrapper{
+    padding: 10px;
+    background: white;
+    display: none;
+}
+
+.myTasksWrapper ul li{
+    list-style: none;
+}
+.myTasksWrapper ul li h2:hover{
+    text-decoration: underline;
+    cursor: pointer;
+    color: #c41717;
+}

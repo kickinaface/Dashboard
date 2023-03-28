@@ -46,7 +46,6 @@ function Interactive(){
         socket.on("updateUsers", function(users){
             knownUsers = users;
             var usersObject = Object.entries(knownUsers)[0][1];
-            console.log("usersObject: ", usersObject);
             var usersList = document.querySelector(".usersList ul");
             usersList.innerHTML = "";
             //
@@ -120,7 +119,7 @@ function MessagesControl(){
     var oldConversationLength = 0;
     //
     this.init = function init(){
-        //getMessages();
+        getMessagesFromServer();
     }
 
     this.sendMessage = function sendMessage(messageObject){

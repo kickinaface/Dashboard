@@ -24,6 +24,7 @@ const fileUpload = require('express-fileupload');
 //
 const UserModel = require('./models/user');
 const MessageModel = require('./models/message');
+const TaskModel = require('./models/task');
 const loginController = require('./controllers/loginController/loginController');
 const registerController = require('./controllers/registerController/registerController');
 const dashboardController = require('./controllers/dashboardController/dashboardController');
@@ -31,6 +32,7 @@ const indexController = require('./controllers/indexController/indexController')
 const logoutController = require('./controllers/logoutController/logoutController');
 const filemanagerController = require('./controllers/filemanagerController/filemanagerController');
 const interactiveController = require('./controllers/interactiveController/interactiveController');
+const taskerController = require('./controllers/taskerController/taskerController');
 //
 const dotenv = require('dotenv');
 dotenv.config();
@@ -58,6 +60,7 @@ indexController.init(app, router, (__dirname+'/public/index.html'), UserModel);
 dashboardController.init(app, router, (__dirname+'/pages/dashboard.html'), (__dirname+'/pages/adminDashboard.html'), UserModel);
 filemanagerController.init(app, router, (__dirname+'/pages/filemanager.html'), (__dirname+'/pages/basicUserFileManager.html'), UserModel);
 interactiveController.init(app, router, (__dirname+'/pages/messages.html'), UserModel, MessageModel);
+taskerController.init(app, router, (__dirname+'/pages/tasker.html'), UserModel, TaskModel);
 
 app.use('/api', router);
 app.use(express.static(__dirname + '/public'));

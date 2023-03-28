@@ -176,3 +176,9 @@ button{
         height: 60px;
     }
 }
+
+@media (max-width:430px) {
+    .navBar{
+        height: 85px;
+    }
+}

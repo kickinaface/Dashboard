@@ -123,55 +123,6 @@
                 }, 'POST');
             };
 
-            this.downloadFileFromPath = function downloadFileFromPath(downloadPath){
-                document.querySelector(".downloadButton").disabled = true;
-                document.querySelector(".downloadButton").style.opacity = '.5';
-                document.querySelector(".deleteFileButton").disabled = true;
-                document.querySelector(".deleteFileButton").style.opacity = '.5';
-                //
-                downloadFile({requestFile:downloadPath}, '/api/dashboard/filemanager/downloadFileFromPath', 'POST');
-                
-                function downloadFile(postData, address, postType){
-                    that.isDownloading = true;
-                    var xhr = new XMLHttpRequest();
-                    var url = address;
-                    var getFilename = function (str) {
-                        return str.substring(str.lastIndexOf('/')+1);
-                    }
-                    //
-                    xhr.open(postType, url, true);
-                    xhr.setRequestHeader("Content-type", "application/json");
-                    xhr.responseType = 'blob';
-                    xhr.addEventListener("progress", function (e){
-                        if(e.lengthComputable) {
-                            var percentComplete = e.loaded / e.total * 100;
-                            //
-                            document.querySelector(".downloadProgress").style.width = (percentComplete+ "%");
-                            document.querySelector(".downloadProgress div").innerHTML = (Math.round(percentComplete)+ "%");
-                        } else {
-                            // unable to compute progress information since the total size is unknown
-                        }
-                    })
-                    xhr.onreadystatechange = function (e) {
-                        if(xhr.response != undefined){
-                            that.isDownloading = false;
-                            var fileName = getFilename(postData.requestFile);
-                            var fileUrl = window.URL.createObjectURL(xhr.response);
-                            var fileLink = document.createElement('a');
-                            fileLink.href = fileUrl;
-                            fileLink.setAttribute("download",fileName);
-                            fileLink.setAttribute("target","_blank");
-                            document.body.appendChild(fileLink);
-                            fileLink.click();
-                            fileLink.remove();
-                            document.querySelector('.fullScreenWrapper').style.display = 'none';
-                        }
-                    }
-                    var data = JSON.stringify(postData);
-                    xhr.send(data);
-                };
-            };
-
             this.closeModal = function closeModal(){
                 if(that.isDownloading == true){
                     alert("You must not close the window while downloading the file.");
@@ -211,6 +162,7 @@
                 <li onclick="window.location='/dashboard'">Dashboard</li>
                 <li onclick="window.location='/dashboard/filemanager'"><u>File Manager</u></li>
                 <li onclick="window.location='/dashboard/messages'">Messages</li>
+                <li onclick="window.location='/dashboard/tasker'">Tasker</li>
                 <li onclick="window.location='/logout'">Logout</li>
             </ul>
         </div>

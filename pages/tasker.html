@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>Christopher's Digital Solutions - Tasker</title>
+    <script src="/js/superUtilBase.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/tasker.js"></script>
+    <!-- <script src="/js/lodash.js"></script>
+    <script src="/js/moment.js"></script> -->
+    <link rel="stylesheet" href="/css/tasker.css">
+</head>
+<body>
+    <div class="fullScreenWrapper"></div>
+    <div class="navBar">
+        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions</span>
+        <div class="navList">
+            <ul>
+                <li onclick="window.location='/dashboard'">Dashboard</li>
+                <li onclick="window.location='/dashboard/filemanager'">File Manager</li>
+                <li onclick="window.location='/dashboard/messages'">Messages</li>
+                <li onclick="window.location='/dashboard/tasker'"><u>Tasker</u></li>
+                <li onclick="window.location='/logout'">Logout</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mainContent">
+        <h1>Tasker</h1>
+        Welcome to Tasker. Use it to create tasks and steps to complete work.
+        <div class="taskerActions">
+            <button onclick="tasker.getMyTasks();">My Tasks</button>
+            <button onclick="tasker.getTeamTasks();">Team Tasks</button>
+            <button onclick="tasker.createTask();">Create Task</button>
+        </div>
+        <div class="myTasksWrapper">
+            <ul></ul>
+        </div>
+        <div class="singleTaskWrapper">
+            <input type="hidden" id="singleTaskId">
+            <h2></h2>
+            <div class="taskDetails"></div>
+            <button onclick="tasker.editNameTitle(this);">Edit</button>
+            <p>
+                <h3>Task Steps:</h3> 
+                <div class="taskSteps"></div>
+                <button onclick="tasker.addTaskStep(this);">Add +</button>
+            </p>
+            <p>
+                <h3>Task Members:</h3>
+                <div class="taskMembers"></div>
+                <button onclick="tasker.addMember(this);">Add +</button>
+            </p>
+            <p>
+                <h3>Task Status</h3>
+                <div class="taskStatus"></div>
+                <button onclick="tasker.markComplete(this);">Mark Complete</button>
+            </p>
+            <p>
+                <h3>Delete Task</h3>
+                <button onclick="tasker.deleteTask(this);">Delete</button>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
