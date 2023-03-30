@@ -119,7 +119,9 @@ function MessagesControl(){
     var oldConversationLength = 0;
     //
     this.init = function init(){
-        getMessagesFromServer();
+        setTimeout(function(){
+            messagesControl.getMyMessages();
+        },500);
     }
 
     this.sendMessage = function sendMessage(messageObject){
@@ -204,7 +206,8 @@ function MessagesControl(){
                                                                         '</div>'+
                                                                 '</div>'+
                                                                 '<div class="userEmailAddress">'+userEmailAddress+'</div>'+
-                                                                '<div class="messageCreationDate">'+formattedDate+'</div>'+
+                                                                "<br>"+
+                                                                // '<div class="messageCreationDate">'+formattedDate+'</div>'+
                                                             '</div>';
                                 }
                             }

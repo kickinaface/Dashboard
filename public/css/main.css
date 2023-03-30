@@ -67,6 +67,10 @@ button{
     border:none;
     cursor: pointer;
 }
+
+.miniBtn{
+    border-radius: 6px;
+}
 .red{
     color:red;
 }

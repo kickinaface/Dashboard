@@ -3,6 +3,10 @@ function Tasker(){
     var savedUser;
     var myTasks;
     this.init = function init(){
+        setInterval(function (){
+            checkToken();
+        }, (1000*60)*5);
+        
         superUtil.grabJSON('/api/dashboard/getName', function (status, data) {
             if(status == 200){
                 var savedPerson = {
@@ -17,6 +21,16 @@ function Tasker(){
             tasker.getMyTasks();
         },1000);
     }
+
+    function checkToken(){
+        superUtil.grabJSON('/api/dashboard/checkToken', function(status, data){
+            if(status == 200){
+                console.log('token is valid', data)
+            } else {
+                window.location = '/logout';
+            }
+        },'GET');
+    };
 
     this.createTask = function createTask(){
         console.log("build modal")
@@ -69,9 +83,12 @@ function Tasker(){
             } else {
                 myTasks = data;
                 for(var t=0;t<=myTasks.length-1; t++){
-                    document.querySelector(".myTasksWrapper ul").innerHTML += "<li><h2 onclick=tasker.goToTask('"+t+"');>"+myTasks[t].taskName+"</h2></p><p><i>"+myTasks[t].taskDetails+"</i></p></li>";
+                    document.querySelector(".myTasksWrapper ul").innerHTML += "<li><p><h2 onclick=tasker.goToTask('"+t+"');>"+myTasks[t].taskName+"</h2></p><p><i>"+myTasks[t].taskDetails+"</i></p></li>";
                     if(myTasks[t].completedDate == null){
-                        document.querySelector(".myTasksWrapper ul").innerHTML += "<li>Task Status: <i>Not Complete</i></li>";
+                        document.querySelector(".myTasksWrapper ul").innerHTML += "<li><br>Task Status: <i>Not Complete</i></li>";
+                    } else {
+                        var formattedDate = moment(myTasks[t].completedDate).format('MMMM DD, YYYY h:mm a'); 
+                        document.querySelector(".myTasksWrapper ul").innerHTML += "<li><br><span class='green'>Marked Completed: "+formattedDate+"</span></li>";
                     }
                     document.querySelector(".myTasksWrapper ul").innerHTML += "<br><br>";
                 }
@@ -85,26 +102,46 @@ function Tasker(){
 
     this.goToTask = function goToTask(taskIndex){
         var singleTask = myTasks[taskIndex];
-        console.log("singleTask: ", singleTask);
         document.querySelector(".singleTaskWrapper").style.display = "block";
         document.querySelector(".myTasksWrapper").style.display = "none";
         document.querySelector("#singleTaskId").value = taskIndex;
-        document.querySelector(".singleTaskWrapper h2").innerHTML = singleTask.taskName;
+        document.querySelector(".singleTaskWrapper h1").innerHTML = singleTask.taskName;
         document.querySelector(".taskDetails").innerHTML = singleTask.taskDetails;
+        document.querySelector(".taskSteps ul").innerHTML = "";
+        document.querySelector(".taskMembers ul").innerHTML = "";
         if(singleTask.taskSteps.length == 0){
-            document.querySelector(".taskSteps").innerHTML ="<i>There are no task steps please add some.</i>";
+            document.querySelector(".taskSteps ul").innerHTML ="<li style='list-style:none;'><i>There are no task steps please add some.</i></li>";
         } else {
-            console.log("display list steps");
+            for(var s= 0;s<=singleTask.taskSteps.length-1; s++){
+                if(singleTask.taskSteps[s].completedDate != null){
+                    var formattedDate = moment(singleTask.taskSteps[s].completedDate).format('MMMM DD, YYYY h:mm a');
+                    document.querySelector(".taskSteps ul").innerHTML+="<li class='stepItem'><h3><i>"+singleTask.taskSteps[s].stepName+":</i></h3><div>"+singleTask.taskSteps[s].stepDetails+"</div>"+
+                    "<span class='green'>Marked Complete: "+formattedDate+"</span></li><br>";
+                } else {
+                    document.querySelector(".taskSteps ul").innerHTML+="<li class='stepItem'><h3><i>"+singleTask.taskSteps[s].stepName+":</i></h3><div>"+singleTask.taskSteps[s].stepDetails+"</div>"+
+                    "<button class='miniBtn' onclick=tasker.editStep("+s+");>Edit Step</button>"+
+                    "<button class='miniBtn' onclick=tasker.deleteStep("+s+");>Delete Step</button>"+
+                    "<button class='miniBtn' onclick=tasker.completeStep("+s+");>Complete Step</button></li><br>";
+                }
+                
+            }
+            
         }
         
         if(singleTask.taskMembers.length == 0){
-            document.querySelector(".taskMembers").innerHTML ="<i>There are no task members on this task. Click Add to add some.</i>";
+            document.querySelector(".taskMembers ul").innerHTML ="<i style='list-style:none;'>There are no task members on this task. Click Add to add some.</i>";
         } else {
-            console.log("display members");
+            //console.log("display members");
+            for(var s= 0;s<=singleTask.taskMembers.length-1; s++){
+                document.querySelector(".taskMembers ul").innerHTML+="<li class='taskMember'><h3><i>"+singleTask.taskMembers[s].email+"</i></h3><div></div><button class='miniBtn' onclick=tasker.removeUserModal("+s+")>Remove</button></li>";
+            }
         }
 
         if(singleTask.completedDate == null){
-            document.querySelector(".taskStatus").innerHTML = "<i>Not Complete</i>";
+            document.querySelector(".taskStatus").innerHTML = "<i>Not Complete</i><br><button onclick=tasker.markTaskCompleteModal(this);>Mark Task as Complete</button>";
+        } else {
+            var formattedDate = moment(singleTask.completedDate).format('MMMM DD, YYYY h:mm a');
+            document.querySelector(".taskStatus").innerHTML="<span class='green'>Marked Complete: "+formattedDate+"</span>";
         }
     }
 
@@ -139,7 +176,7 @@ function Tasker(){
                 myTasks[taskId].taskName = data.postData.taskName;
                 myTasks[taskId].taskDetails = data.postData.taskDetails;
                 document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
-                document.querySelector(".singleTaskWrapper h2").innerHTML = data.postData.taskName;
+                document.querySelector(".singleTaskWrapper h1").innerHTML = data.postData.taskName;
                 document.querySelector(".taskDetails").innerHTML = data.postData.taskDetails;
 
                 setTimeout(function(){
@@ -148,7 +185,6 @@ function Tasker(){
             }
         },"POST");
     }
-
     this.addTaskStep = function addTaskStep(e){
         var singleTaskId = e.parentNode.querySelector("#singleTaskId").value;
         document.querySelector('.fullScreenWrapper').style.display = 'block';
@@ -166,7 +202,6 @@ function Tasker(){
     }
 
     this.addStep = function addStep(e, taskId){
-        console.log(e);
         var taskStepName = e.parentNode.querySelector("#taskStepName").value;
         var shortStepMessage = e.parentNode.querySelector("#shortStepMessage").value;
         var postData = {
@@ -180,16 +215,121 @@ function Tasker(){
                 console.log("status ",status);
                 document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
             } else {
-                myTasks[taskId].taskSteps.push(data.postData.taskSteps);
-                //myTasks[taskId].taskDetails = data.postData.taskDetails;
+                myTasks[taskId].taskSteps = data.postData;
                 document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
-                console.log("build loop through step ", myTasks[taskId].taskSteps);
-                // document.querySelector(".singleTaskWrapper h2").innerHTML = data.postData.taskName;
-                // document.querySelector(".taskDetails").innerHTML = data.postData.taskDetails;
+                tasker.goToTask(taskId);
+                setTimeout(function(){
+                    tasker.closeModal();
+                },1000);
+            }
+        },"POST");
+    }
 
-                // setTimeout(function(){
-                //     tasker.closeModal();
-                // },1000);
+    this.editStep = function editStep(stepIndex){
+        var singleTaskId = document.querySelector("#singleTaskId").value;
+        var currentStep = myTasks[singleTaskId].taskSteps[stepIndex];
+        document.querySelector('.fullScreenWrapper').style.display = 'block';
+        document.querySelector('.fullScreenWrapper').innerHTML = 
+            '<div class="modalContentWrapper">'+
+                '<h2>Edit Task Step</h2>'+
+                '<br><span>Change Name of this step:</span>'+
+                '<br><input id="taskStepName" placeholder="Buy the domain name." value="'+currentStep.stepName+'"></input>'+
+                '<br><span>Provide a short description of the step.</span>'+
+                '<p><textArea id="shortStepMessage" placeholder="Enter a short step description." cols="40" rows="8">'+currentStep.stepDetails+'</textArea></p>'+
+                '<div class="modalMessages"></div>'+
+                '<button onclick="tasker.editStepRequest('+singleTaskId+','+stepIndex+');">Edit Step</button>'+
+                '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
+            '</div>';
+    }
+
+    this.editStepRequest = function editStepRequest(index, stepIndex){
+        var taskStepName = document.querySelector("#taskStepName").value;
+        var shortStepMessage = document.querySelector("#shortStepMessage").value;
+        var postData = {
+            taskId:myTasks[index]._id,
+            stepIndex:stepIndex,
+            stepName:taskStepName,
+            stepDetails:shortStepMessage
+        };
+
+        superUtil.sendJSON({postData},"/api/dashboard/tasker/updateStep", function(status, data){
+            if(status != 200){
+                console.log("status ",status);
+                document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
+            } else {
+                myTasks[index].taskSteps = data.postData;
+                document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
+                tasker.goToTask(index);
+                setTimeout(function(){
+                    tasker.closeModal();
+                },1000);
+            }
+        },"POST");
+    }
+
+    this.deleteStep = function deleteStep(stepIndex){
+        var singleTaskId = document.querySelector("#singleTaskId").value;
+        document.querySelector('.fullScreenWrapper').style.display = 'block';
+        document.querySelector('.fullScreenWrapper').innerHTML = 
+            '<div class="modalContentWrapper">'+
+                '<h2>Delete Task Step</h2>'+
+                '<br><span>Warning! <br>Are you sure you want to delete this step? <br>This cannot be undone.</span>'+
+                '<div class="modalMessages"></div>'+
+                '<button onclick="tasker.deleteStepRequest('+singleTaskId+','+stepIndex+');">Delete Step</button>'+
+                '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
+            '</div>';
+    }
+
+    this.deleteStepRequest = function deleteStepRequest(index, stepIndex){
+        var postData = {
+            taskId:myTasks[index]._id,
+            stepIndex:stepIndex
+        };
+
+        superUtil.sendJSON({postData},"/api/dashboard/tasker/removeStep", function(status, data){
+            if(status != 200){
+                console.log("status ",status);
+                document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
+            } else {
+                myTasks[index].taskSteps = data.postData;
+                document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
+                tasker.goToTask(index);
+                setTimeout(function(){
+                    tasker.closeModal();
+                },1000);
+            }
+        },"DELETE");
+    }
+
+    this.completeStep = function completeStep(stepIndex){
+        var singleTaskId = document.querySelector("#singleTaskId").value;
+        document.querySelector('.fullScreenWrapper').style.display = 'block';
+        document.querySelector('.fullScreenWrapper').innerHTML = 
+            '<div class="modalContentWrapper">'+
+                '<h2>Complete This Step</h2>'+
+                '<br><span>Warning! <br>Are you sure you want mark this step as completed? <br>This cannot be undone.</span>'+
+                '<div class="modalMessages"></div>'+
+                '<button onclick="tasker.completeStepRequest('+singleTaskId+','+stepIndex+');">Complete Step</button>'+
+                '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
+            '</div>';
+    }
+
+    this.completeStepRequest = function(index, stepIndex){
+        var postData = {
+            taskId:myTasks[index]._id,
+            stepIndex:stepIndex
+        };
+        superUtil.sendJSON({postData},"/api/dashboard/tasker/completeStep", function(status, data){
+            if(status != 200){
+                console.log("status ",status);
+                document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
+            } else {
+                myTasks[index].taskSteps = data.postData;
+                document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
+                tasker.goToTask(index);
+                setTimeout(function(){
+                    tasker.closeModal();
+                },1000);
             }
         },"POST");
     }
@@ -203,22 +343,96 @@ function Tasker(){
                 "<br><span>Enter a valid user's email address</span>"+
                 '<br><input id="addAMemberEmail" placeholder="validmemberEmail@site.com"></input>'+
                 '<div class="modalMessages"></div>'+
-                '<button onclick="tasker.addMember(this);">Add Member</button>'+
+                '<button onclick="tasker.addMemberToTask(this,'+singleTaskId+');">Add Member</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
             '</div>';
     }
 
-    this.markComplete = function markComplete(e){
-        var singleTaskId = e.parentNode.querySelector("#singleTaskId").value;
+    this.addMemberToTask = function addMemberToTask(e, taskId){
+        var memberEmail = e.parentNode.querySelector("#addAMemberEmail").value;
+        var postData = {
+            taskId:myTasks[taskId]._id,
+            memberEmail:memberEmail
+        };
+
+        superUtil.sendJSON({postData},"/api/dashboard/tasker/addMember", function(status, data){
+            if(status != 200){
+                console.log("status ",status);
+                document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
+            } else {
+                myTasks[taskId].taskMembers = data.postData;
+                document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
+                tasker.goToTask(taskId);
+                setTimeout(function(){
+                    tasker.closeModal();
+                },1000);
+            }
+        },"POST");  
+    }
+
+    this.removeUserModal = function removeUserModal(index){
+        var singleTaskId = document.querySelector("#singleTaskId").value;
+        document.querySelector('.fullScreenWrapper').style.display = 'block';
+        document.querySelector('.fullScreenWrapper').innerHTML = 
+            '<div class="modalContentWrapper">'+
+                '<h2>Remove Member</h2>'+
+                '<br><span>Warning! <br>Are you sure you want to remove this member?<br><br>'+myTasks[singleTaskId].taskMembers[index].email+'</span>'+
+                '<div class="modalMessages"></div>'+
+                '<button onclick="tasker.removeMemberRequest('+singleTaskId+','+index+');">Remove Member</button>'+
+                '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
+            '</div>';
+    }
+
+    this.removeMemberRequest = function removeMemberRequest(index, memberIndex){
+        var postData = {
+            taskId:myTasks[index]._id,
+            memberIndex:memberIndex
+        };
+
+        superUtil.sendJSON({postData},"/api/dashboard/tasker/removeMember", function(status, data){
+            if(status != 200){
+                console.log("status ",status);
+                document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
+            } else {
+                myTasks[index].taskMembers = data.postData;
+                document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
+                tasker.goToTask(index);
+                setTimeout(function(){
+                    tasker.closeModal();
+                },1000);
+            }
+        },"DELETE");
+    }
+
+    this.markTaskCompleteModal = function markTaskCompleteModal(e){
+        var singleTaskId = e.parentNode.parentNode.querySelector("#singleTaskId").value;
         document.querySelector('.fullScreenWrapper').style.display = 'block';
         document.querySelector('.fullScreenWrapper').innerHTML = 
             '<div class="modalContentWrapper">'+
                 '<h2>Mark Task As Completed</h2>'+
                 "<br><span>Warning! Are you sure you want to make this task marked as completed?</span>"+
                 '<div class="modalMessages"></div>'+
-                '<button onclick="tasker.addMember(this);">Mark Completed</button>'+
+                '<button onclick="tasker.markCompletedRequest('+singleTaskId+');">Mark Completed</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
             '</div>';
+    }
+
+    this.markCompletedRequest = function markCompletedRequest(taskId){
+        var postData = {
+            taskId:myTasks[taskId]._id
+        };
+
+        superUtil.sendJSON({postData},"/api/dashboard/tasker/completeTask", function(status, data){
+            if(status != 200){
+                console.log("status ",status);
+                document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
+            } else {
+                document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
+                setTimeout(function(){
+                    location.reload();
+                },1000);
+            }
+        },"POST"); 
     }
 
     this.deleteTask = function deleteTask(e){
@@ -229,9 +443,27 @@ function Tasker(){
                 '<h2>Delete Task</h2>'+
                 "<br><span>Warning! Are you sure you want to delete this task? <br>This cannot be undone!</span>"+
                 '<div class="modalMessages"></div>'+
-                '<button onclick="tasker.deleteTaskConfirm(this);">Delete</button>'+
+                '<button onclick="tasker.deleteTaskRequest('+singleTaskId+');">Delete</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
             '</div>';
+    }
+
+    this.deleteTaskRequest = function deleteTaskRequest(taskId){
+        var postData = {
+            taskId:myTasks[taskId]._id
+        };
+
+        superUtil.sendJSON({postData},"/api/dashboard/tasker/removeTask", function(status, data){
+            if(status != 200){
+                console.log("status ",status);
+                document.querySelector(".modalMessages").innerHTML ="<span class='red'>"+data.message+"</span>";
+            } else {
+                document.querySelector(".modalMessages").innerHTML ="<span class='green'>"+data.message+"</span>";
+                setTimeout(function(){
+                    location.reload();
+                },1000);
+            }
+        },"DELETE");  
     }
 }
 
