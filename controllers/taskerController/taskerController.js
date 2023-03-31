@@ -496,6 +496,72 @@ function TaskerController(){
             }
         });
         
+        // Team Task routes
+        router.route("/dashboard/tasker/getTeamTasks").get(function(req, res){
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
+            if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
+                    if(err){
+                        res.send({message:err});
+                    } else {
+                        if(foundUser){
+                            Tasker.find(function(err, tasks){
+                                if(err){
+                                    res.send({message:err});
+                                } else {
+                                    var preparedTasks = [];
+                                    for(var t = 0; t<= tasks.length-1; t++){
+                                        // Get all the tasks where the username is a team member
+                                        for(var m=0; m<=tasks[t].taskMembers.length-1; m++){
+                                            if(tasks[t].taskMembers[m].email == foundUser.username){
+                                                preparedTasks.push(tasks[t]);
+                                            }
+                                        }
+                                    }
+                                    setTimeout(function(){
+                                        res.send(preparedTasks.reverse());
+                                    },300);
+                                }
+                            });
+                        } else {
+                            res.sendStatus(403);
+                        }
+                    }
+                });
+            } else {
+                res.sendStatus(403);
+            }
+        });
+        
+        router.route("/dashboard/tasker/getSingleTeamTask/:taskId").get(function(req, res){
+            var clientUserAgent = req.headers['user-agent'];
+            var ipAddress = req.socket.remoteAddress;
+            var taskId = req.params.taskId;
+
+            if(tokenMethods.authenticateToken(req.cookies.myDashboardAppToken) == true){
+                User.findOne({token: req.cookies.myDashboardAppToken, userAgent:clientUserAgent, ipAddress:ipAddress}, function (err, foundUser) {
+                    if(err){
+                        res.send({message:err});
+                    } else {
+                        if(foundUser){
+                            Tasker.findOne({_id:taskId}, function(err, foundTask){
+                                if(err){
+                                    console.log(err);
+                                    res.send(err);
+                                } else {
+                                    res.send({postData: foundTask});
+                                }
+                            });
+                        } else {
+                            res.sendStatus(403);
+                        }
+                    }
+                });
+            } else {
+                res.sendStatus(403);
+            }
+        });
     }
 }
 

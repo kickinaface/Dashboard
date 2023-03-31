@@ -2,6 +2,8 @@ var superUtil = new SuperUtil();
 function Tasker(){
     var savedUser;
     var myTasks;
+    var myTeamTasks;
+    var teamCheckInterval;
     this.init = function init(){
         setInterval(function (){
             checkToken();
@@ -74,8 +76,11 @@ function Tasker(){
     }
 
     this.getMyTasks = function getMyTasks(){
+        clearInterval(teamCheckInterval);
         document.querySelector(".myTasksWrapper").style.display = "block";
         document.querySelector(".singleTaskWrapper").style.display = "none";
+        document.querySelector(".teamTasksWrapper").style.display = "none";
+        document.querySelector(".singleTeamTask").style.display = "none";
         document.querySelector(".myTasksWrapper ul").innerHTML ="";
         superUtil.grabJSON("/api/dashboard/tasker/getTasks", function(status, data){
             if(status != 200){
@@ -101,9 +106,11 @@ function Tasker(){
     }
 
     this.goToTask = function goToTask(taskIndex){
+        clearInterval(teamCheckInterval);
         var singleTask = myTasks[taskIndex];
         document.querySelector(".singleTaskWrapper").style.display = "block";
         document.querySelector(".myTasksWrapper").style.display = "none";
+        document.querySelector(".teamTasksWrapper").style.display = "none";
         document.querySelector("#singleTaskId").value = taskIndex;
         document.querySelector(".singleTaskWrapper h1").innerHTML = singleTask.taskName;
         document.querySelector(".taskDetails").innerHTML = singleTask.taskDetails;
@@ -464,6 +471,103 @@ function Tasker(){
                 },1000);
             }
         },"DELETE");  
+    }
+
+    // Team tasks
+    this.getTeamTasks = function getTeamTasks(){
+        clearInterval(teamCheckInterval);
+        document.querySelector(".teamTasksWrapper").style.display = "block";
+        document.querySelector(".myTasksWrapper").style.display = "none";
+        document.querySelector(".singleTaskWrapper").style.display = "none";
+        document.querySelector(".singleTeamTask").style.display = "none";
+        document.querySelector(".teamTasksWrapper ul").innerHTML = "";
+        superUtil.grabJSON("/api/dashboard/tasker/getTeamTasks", function(status, data){
+            if(status != 200){
+                console.log("status: ",status);
+            } else {
+                myTeamTasks = data;
+                for(var t=0;t<=myTeamTasks.length-1; t++){
+                    document.querySelector(".teamTasksWrapper ul").innerHTML += "<li><p><h2 onclick=tasker.goToTeamTask('"+t+"');>"+myTeamTasks[t].taskName+"</h2></p><p><i>"+myTeamTasks[t].taskDetails+"</i></p></li>";
+                    if(myTeamTasks[t].completedDate == null){
+                        document.querySelector(".teamTasksWrapper ul").innerHTML += "<li><br>Task Status: <i>Not Complete</i></li>";
+                    } else {
+                        var formattedDate = moment(myTeamTasks[t].completedDate).format('MMMM DD, YYYY h:mm a'); 
+                        document.querySelector(".teamTasksWrapper ul").innerHTML += "<li><br><span class='green'>Marked Completed: "+formattedDate+"</span></li>";
+                    }
+                    document.querySelector(".teamTasksWrapper ul").innerHTML += "<br><br>";
+                }
+
+                if(myTeamTasks.length == 0){
+                    document.querySelector(".teamTasksWrapper ul").innerHTML +="<li>There are no current tasks.</li>";
+                }
+            }
+        });
+    }
+
+    this.goToTeamTask = function goToTeamTask(index){
+        //var singleTeamTask;
+        
+        teamCheckInterval = setInterval(function(){
+            console.log("refresh and check the values and append them back");
+            var taskId = singleTeamTask._id;
+            console.log("update task id: ", taskId);
+            superUtil.grabJSON(("/api/dashboard/tasker/getSingleTeamTask/"+taskId), function(status, data){
+                if(status != 200){
+                    console.log(status);
+                } else {
+                    myTeamTasks[index] = data.postData;
+                    // after getting values back from server, redraw.
+                    renderTeamTask();
+                }
+            });
+        }, 5000);
+        var renderTeamTask = function(){
+            singleTeamTask = myTeamTasks[index];
+            document.querySelector(".singleTeamTask").style.display = "block";
+            document.querySelector(".singleTaskWrapper").style.display = "none";
+            document.querySelector(".myTasksWrapper").style.display = "none";
+            document.querySelector(".teamTasksWrapper").style.display = "none";
+            document.querySelector(".singleTeamTask #singleTaskId").value = index;
+            document.querySelector(".singleTeamTask h1").innerHTML = singleTeamTask.taskName;
+            document.querySelector(".singleTeamTask .taskDetails").innerHTML = singleTeamTask.taskDetails;
+            document.querySelector(".singleTeamTask .taskSteps ul").innerHTML = "";
+            document.querySelector(".singleTeamTask .taskMembers ul").innerHTML = "";
+            if(singleTeamTask.taskSteps.length == 0){
+                document.querySelector(".taskSteps ul").innerHTML ="<li style='list-style:none;'><i>There are no task steps please add some.</i></li>";
+            } else {
+                for(var s= 0;s<=singleTeamTask.taskSteps.length-1; s++){
+                    if(singleTeamTask.taskSteps[s].completedDate != null){
+                        var formattedDate = moment(singleTeamTask.taskSteps[s].completedDate).format('MMMM DD, YYYY h:mm a');
+                        document.querySelector(".singleTeamTask .taskSteps ul").innerHTML+="<li class='stepItem'><h3><i>"+singleTeamTask.taskSteps[s].stepName+":</i></h3><div>"+singleTeamTask.taskSteps[s].stepDetails+"</div>"+
+                        "<span class='green'>Marked Complete: "+formattedDate+"</span></li><br>";
+                    } else {
+                        document.querySelector(".singleTeamTask .taskSteps ul").innerHTML+="<li class='stepItem'><h3><i>"+singleTeamTask.taskSteps[s].stepName+":</i></h3><div>"+singleTeamTask.taskSteps[s].stepDetails+"</div></li><br>";
+                        // "<button class='miniBtn' onclick=tasker.editStep("+s+");>Edit Step</button>"+
+                        // "<button class='miniBtn' onclick=tasker.deleteStep("+s+");>Delete Step</button>"+
+                        // "<button class='miniBtn' onclick=tasker.completeStep("+s+");>Complete Step</button></li><br>";
+                    }
+                    
+                }
+                
+            }
+            
+            if(singleTeamTask.taskMembers.length == 0){
+                document.querySelector(".singleTeamTask .taskMembers ul").innerHTML ="<i style='list-style:none;'>There are no task members on this task. Click Add to add some.</i>";
+            } else {
+                //console.log("display members");
+                for(var s= 0;s<=singleTeamTask.taskMembers.length-1; s++){
+                    document.querySelector(".singleTeamTask .taskMembers ul").innerHTML+="<li class='taskMember'><h3><i>"+singleTeamTask.taskMembers[s].email+"</i></h3><div></div></li>";
+                }
+            }
+
+            if(singleTeamTask.completedDate == null){
+                document.querySelector(".singleTeamTask .taskStatus").innerHTML = "<i>Not Complete</i><br>";
+            } else {
+                var formattedDate = moment(singleTeamTask.completedDate).format('MMMM DD, YYYY h:mm a');
+                document.querySelector(".singleTeamTask .taskStatus").innerHTML="<span class='green'>Marked Complete: "+formattedDate+"</span>";
+            }
+        }
+        renderTeamTask();
     }
 }
 

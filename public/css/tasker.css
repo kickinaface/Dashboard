@@ -4,16 +4,16 @@
     padding:10px;
 }
 
-.myTasksWrapper, .singleTaskWrapper{
+.myTasksWrapper, .singleTaskWrapper, .teamTasksWrapper, .singleTeamTask{
     padding: 10px;
     background: white;
     display: none;
 }
 
-.myTasksWrapper ul li{
+.myTasksWrapper ul li, .teamTasksWrapper ul li{
     list-style: none;
 }
-.myTasksWrapper ul li h2:hover{
+.myTasksWrapper ul li h2:hover, .teamTasksWrapper ul li h2:hover{
     text-decoration: underline;
     cursor: pointer;
     color: #c41717;
