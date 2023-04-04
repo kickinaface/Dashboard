@@ -13,6 +13,10 @@ function FilemanagerController(){
             name:'(K:) Drive',
             path:'K:'
         },
+        {
+            name: '(L:) Drive',
+            path:'L:'
+        }
     ];
     this.init = function init(app, router, pageFile, basicUserFileManagerPage, User){
         var tokenMethods = require("../../controllers/tokenMethods/tokenMethods");

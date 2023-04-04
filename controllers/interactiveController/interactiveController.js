@@ -1,6 +1,7 @@
 function InteractiveController(){
     this.init = function init(app, router, pageFile, User, MessageModel){
         var tokenMethods = require("../../controllers/tokenMethods/tokenMethods");
+        var mailController = require("../mailController/mailController");
         var moment = require('moment');
         //Page Routing
         app.route("/dashboard/messages").get(function (req, res){
@@ -115,11 +116,7 @@ function InteractiveController(){
                                         if (err){
                                             res.send(err);
                                         } else {
-                                            // Check if user enabled email notifications/
-                                            // if(admin.emailMessages == true){
-                                            //     var preparedMessage = ('<strong>From: '+ fromUserKey+ '</strong><br/>'+messageKey);
-                                            //     mailController.sendEmailFromMessages(toUserKey, preparedMessage);
-                                            // }
+                                            mailController.sendMessageToUser(toEmail, foundUser.username, usersMessage);
                                             res.send({message:"Your message has been sent."});
                                         }
                                     });

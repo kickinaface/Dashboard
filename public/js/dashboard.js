@@ -35,8 +35,8 @@ function Dashboard(){
                     "<input type='text'  class='changeFirstName' placeholder='First Name'>"+
                     "<input type='text'  class='changeLastName' placeholder='Last Name'>"+
                     "<p><button type='submit' onclick='dashboard.updateName();'>Save</button></p>"+
-                    "<div class='modalMessages'></div>"+
-                '<div class="closeModal" onclick="dashboard.closeModal()">Close (X)</div>'+
+                    "<div class='modalMessages'></div><br>"+
+                '<div class="closeModal" onclick="dashboard.closeModal()">Cancel (X)</div>'+
             '</div>';
     };
     this.updateName = function updateName(){
@@ -79,8 +79,8 @@ function Dashboard(){
                     
                     "<p><button type='submit' onclick='dashboard.changePassword();'>Save</button></p>"+
                     "<br><b>WARNING! Do not forget your new password.</b><br>"+
-                    "<div class='modalMessages'></div>"+
-                '<div class="closeModal" onclick="dashboard.closeModal()">Close (X)</div>'+
+                    "<div class='modalMessages'></div><br><br/>"+
+                '<div class="closeModal" onclick="dashboard.closeModal()">Cancel (X)</div>'+
             '</div>';
     };
 

@@ -1,3 +1,5 @@
+const mailController = require("../mailController/mailController");
+
 function TaskerController(){
     this.init = function init(app, router, pageFile, User, Tasker){
         var tokenMethods = require("../../controllers/tokenMethods/tokenMethods");
@@ -48,12 +50,8 @@ function TaskerController(){
                                     if (err){
                                         res.send(err);
                                     } else {
-                                        // Check if user enabled email notifications/
-                                        // if(admin.emailMessages == true){
-                                        //     var preparedMessage = ('<strong>From: '+ fromUserKey+ '</strong><br/>'+messageKey);
-                                        //     mailController.sendEmailFromMessages(toUserKey, preparedMessage);
-                                        // }
                                         res.send({message: "Task was created!"});
+                                        mailController.createdTask(foundUser.username, {taskName:taskModel.taskName, taskDetails:taskModel.taskDetails});
                                     }
                                 });
                             }
@@ -128,12 +126,8 @@ function TaskerController(){
                                             if (err){
                                                 res.send(err);
                                             } else {
-                                                // Check if user enabled email notifications/
-                                                // if(admin.emailMessages == true){
-                                                //     var preparedMessage = ('<strong>From: '+ fromUserKey+ '</strong><br/>'+messageKey);
-                                                //     mailController.sendEmailFromMessages(toUserKey, preparedMessage);
-                                                // }
                                                 res.send({message: "Successfully update", postData:updateTask});
+                                                mailController.updatedTask((foundUser.firstName+" "+foundUser.lastName), foundUser.username, foundTask.taskMembers, {taskName:foundTask.taskName, taskDetails:foundTask.taskDetails});
                                             }
                                         });
                                     }
@@ -180,6 +174,7 @@ function TaskerController(){
                                                 res.send(err)
                                             } else {
                                                 res.send({message:"Task step was added!", postData:foundTask.taskSteps});
+                                                mailController.addStep((foundUser.firstName+" "+foundUser.lastName), foundUser.username, foundTask.taskMembers,{stepName:preparedStep.stepName,stepDetails:preparedStep.stepDetails});
                                             }
                                         });
                                     }
@@ -223,6 +218,9 @@ function TaskerController(){
                                                 res.send(err);
                                             } else {
                                                 res.send({message:"Your task step was successfully updated.", postData:task.taskSteps});
+                                                mailController.updatedTask((foundUser.firstName+" "+foundUser.lastName), 
+                                                    foundUser.username, task.taskMembers, 
+                                                    {taskName:task.taskSteps[updateTask.stepIndex].stepName, taskDetails:task.taskSteps[updateTask.stepIndex].stepDetails});
                                             }
                                         });
                                     }
@@ -252,7 +250,7 @@ function TaskerController(){
                             if(!updateTask.taskId || !updateTask.stepIndex){
                                 res.status(404).send({message:"You must not leave fields blank."});
                             } else {
-                                Tasker.findOne({_id:updateTask.taskId}, function(err, foundTask){
+                                Tasker.findOne({_id:updateTask.taskId, createdBy:foundUser.username}, function(err, foundTask){
                                     if(err){
                                         console.log(err);
                                         res.send(err);
@@ -264,6 +262,7 @@ function TaskerController(){
                                                 res.send(err);
                                             } else {
                                                 res.send({message:"Step has been removed.", postData:foundTask.taskSteps});
+                                                mailController.deleteStep((foundUser.firstName+" "+foundUser.lastName), foundUser.username, foundTask.taskMembers);
                                             }
                                         });
                                     }
@@ -305,6 +304,9 @@ function TaskerController(){
                                             res.send(err);
                                         } else {
                                             res.send({message:"This step is completed.", postData:foundTask.taskSteps});
+                                            mailController.completeStep((foundUser.firstName+" "+foundUser.lastName), 
+                                                foundUser.username, foundTask.taskMembers, 
+                                                {stepName:foundTask.taskSteps[updateTask.stepIndex].stepName, stepDetails:foundTask.taskSteps[updateTask.stepIndex].stepDetails});
                                         }
                                     });
                                 }
@@ -335,7 +337,7 @@ function TaskerController(){
                                     console.log(err);
                                     res.send(err)
                                 } else {
-                                    if(updateTask.memberEmail == foundUser.username){
+                                    if(updateTask.memberEmail.toLowerCase() == foundUser.username){
                                         res.status(404).send({message:"You cannot add yourself as a member if you created the task."});
                                     } else {
                                         if(!updateTask.memberEmail){
@@ -345,7 +347,7 @@ function TaskerController(){
                                             var doesAlreadyExist = function doesAlreadyExist(){
                                                 var isFound = false;
                                                 for(var m =0; m<=foundTask.taskMembers.length-1; m++){
-                                                    if(foundTask.taskMembers[m].email == updateTask.memberEmail){
+                                                    if(foundTask.taskMembers[m].email == updateTask.memberEmail.toLowerCase()){
                                                         isFound = true;
                                                     }
                                                 }
@@ -354,7 +356,7 @@ function TaskerController(){
                                             if(doesAlreadyExist()){
                                                 res.status(403).send({message:"This user already exists in this task."})
                                             } else if(!doesAlreadyExist()){
-                                                User.findOne({username:updateTask.memberEmail}, function(err, userExist){
+                                                User.findOne({username:updateTask.memberEmail.toLowerCase()}, function(err, userExist){
                                                     if(err){
                                                         console.log(err)
                                                         res.status(403).send({message:err});
@@ -363,7 +365,7 @@ function TaskerController(){
                                                             res.status(404).send({message:"That user doesn't exist."})
                                                         } else {
                                                             var preparedMember = {
-                                                                email: updateTask.memberEmail,
+                                                                email: updateTask.memberEmail.toLowerCase(),
                                                                 dateAdded: moment().format()
                                                             }
                                                             foundTask.taskMembers.push(preparedMember);
@@ -373,6 +375,9 @@ function TaskerController(){
                                                                     res.send(err)
                                                                 } else {
                                                                     res.send({message:"Member was sucessfully added to the task.", postData:foundTask.taskMembers});
+                                                                    mailController.addedMember((foundUser.firstName+" "+foundUser.lastName),
+                                                                        updateTask.memberEmail.toLowerCase(),
+                                                                        {taskName:foundTask.taskName,taskDetails:foundTask.taskDetails});
                                                                 }
                                                             });
                                                         }
@@ -453,6 +458,9 @@ function TaskerController(){
                                             res.send(err);
                                         } else {
                                             res.send({message:"This task has been marked complete!"});
+                                            mailController.markTaskComplete((foundUser.firstName+" "+foundUser.lastName),
+                                                foundUser.username, foundTask.taskMembers,
+                                                {taskName: foundTask.taskName, taskDetails:foundTask.taskDetails});
                                         }
                                     });
                                 }

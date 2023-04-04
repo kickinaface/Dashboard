@@ -121,6 +121,18 @@ button{
         padding:20px;
         margin-top:20px;
     }
+    .modalContentWrapper textarea{
+        width: 95%;
+    }
+    .modalContentWrapper input{
+        width: 85%;
+        float: left;
+    }
+    .modalContentWrapper .modalMessages {
+        width: 100%;
+        float: left;
+        padding-bottom:10px;
+    }
         .closeModal{
             padding: 5px;
             background-color:indianred;
@@ -184,5 +196,20 @@ button{
 @media (max-width:430px) {
     .navBar{
         height: 85px;
+    }
+}
+
+@media (max-width:600px) {
+    .modalContentWrapper{
+        width: 95%;
+    }
+    .modalContentWrapper input, .modalContentWrapper textArea {
+        width: 85%;
+        float: left;
+    }
+    .modalMessages{
+        float: left;
+        padding-bottom:10px;
+        width: 100%;
     }
 }

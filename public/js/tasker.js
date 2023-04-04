@@ -280,7 +280,7 @@ function Tasker(){
         document.querySelector('.fullScreenWrapper').innerHTML = 
             '<div class="modalContentWrapper">'+
                 '<h2>Delete Task Step</h2>'+
-                '<br><span>Warning! <br>Are you sure you want to delete this step? <br>This cannot be undone.</span>'+
+                '<br><span>Warning! <br>Are you sure you want to delete this step? <br>This cannot be undone.</span><br>'+
                 '<div class="modalMessages"></div>'+
                 '<button onclick="tasker.deleteStepRequest('+singleTaskId+','+stepIndex+');">Delete Step</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
@@ -314,7 +314,7 @@ function Tasker(){
         document.querySelector('.fullScreenWrapper').innerHTML = 
             '<div class="modalContentWrapper">'+
                 '<h2>Complete This Step</h2>'+
-                '<br><span>Warning! <br>Are you sure you want mark this step as completed? <br>This cannot be undone.</span>'+
+                '<br><span>Warning! <br>Are you sure you want mark this step as completed? <br>This cannot be undone.</span><br>'+
                 '<div class="modalMessages"></div>'+
                 '<button onclick="tasker.completeStepRequest('+singleTaskId+','+stepIndex+');">Complete Step</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
@@ -383,7 +383,7 @@ function Tasker(){
         document.querySelector('.fullScreenWrapper').innerHTML = 
             '<div class="modalContentWrapper">'+
                 '<h2>Remove Member</h2>'+
-                '<br><span>Warning! <br>Are you sure you want to remove this member?<br><br>'+myTasks[singleTaskId].taskMembers[index].email+'</span>'+
+                '<br><span>Warning! <br>Are you sure you want to remove this member?<br><br>'+myTasks[singleTaskId].taskMembers[index].email+'</span><br>'+
                 '<div class="modalMessages"></div>'+
                 '<button onclick="tasker.removeMemberRequest('+singleTaskId+','+index+');">Remove Member</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
@@ -417,7 +417,7 @@ function Tasker(){
         document.querySelector('.fullScreenWrapper').innerHTML = 
             '<div class="modalContentWrapper">'+
                 '<h2>Mark Task As Completed</h2>'+
-                "<br><span>Warning! Are you sure you want to make this task marked as completed?</span>"+
+                "<br><span>Warning! Are you sure you want to make this task marked as completed?</span><br>"+
                 '<div class="modalMessages"></div>'+
                 '<button onclick="tasker.markCompletedRequest('+singleTaskId+');">Mark Completed</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
@@ -449,7 +449,7 @@ function Tasker(){
             '<div class="modalContentWrapper">'+
                 '<h2>Delete Task</h2>'+
                 "<br><span>Warning! Are you sure you want to delete this task? <br>This cannot be undone!</span>"+
-                '<div class="modalMessages"></div>'+
+                '<div class="modalMessages"></div><br>'+
                 '<button onclick="tasker.deleteTaskRequest('+singleTaskId+');">Delete</button>'+
                 '<div class="closeModal" onclick="tasker.closeModal();">Cancel (X)</div>'+
             '</div>';
@@ -542,9 +542,6 @@ function Tasker(){
                         "<span class='green'>Marked Complete: "+formattedDate+"</span></li><br>";
                     } else {
                         document.querySelector(".singleTeamTask .taskSteps ul").innerHTML+="<li class='stepItem'><h3><i>"+singleTeamTask.taskSteps[s].stepName+":</i></h3><div>"+singleTeamTask.taskSteps[s].stepDetails+"</div></li><br>";
-                        // "<button class='miniBtn' onclick=tasker.editStep("+s+");>Edit Step</button>"+
-                        // "<button class='miniBtn' onclick=tasker.deleteStep("+s+");>Delete Step</button>"+
-                        // "<button class='miniBtn' onclick=tasker.completeStep("+s+");>Complete Step</button></li><br>";
                     }
                     
                 }

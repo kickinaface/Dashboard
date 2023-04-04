@@ -10,7 +10,6 @@ const fs = require("fs");
 var helmet = require("helmet");
 const ioHelper = require('./controllers/serviceMethods/socket.io.helper');
 
-//app.use(helmet()); // when you ready to fix some code.
 var serverCert = 
 {
 	cert: (fs.readFileSync('./certificates/cert.pem') + fs.readFileSync('./certificates/ca.pem')),
@@ -35,13 +34,21 @@ const interactiveController = require('./controllers/interactiveController/inter
 const taskerController = require('./controllers/taskerController/taskerController');
 //
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({path:"../.env"});
 //
 
 app.use(bodyParser.urlencoded({ extended: true, limit:'50mb' }));
 app.use(bodyParser.json({limit:'50mb'}));
 app.use(cookieParser());
 app.use(fileUpload({useTempFiles: true}));
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'"],
+    },
+}));
 //
 var port = process.env.PORT || 443;	//set port
 

@@ -90,7 +90,7 @@ function FileManager(){
                                 '</div>'+
                             '</div>'+
                             '<div class="downloadStatusMessages"></div>'+
-                            '<div class="closeModal" onclick="fileManager.closeModal()">Close (X)</div>'+
+                            '<div class="closeModal" onclick="fileManager.closeModal()">Cancel (X)</div>'+
                         '</div>';
                 }else {
                     document.querySelector('.fullScreenWrapper').style.display = 'none';
@@ -201,7 +201,7 @@ function FileManager(){
                     "<p><button onclick='fileManager.uploadFile(event)' id='uploadFileBtn'>Upload File</button></p>"+
                     "<div class='modalMessages'></div>"+
                 "</form>"+
-                '<div class="closeModal" onclick="fileManager.closeModal()">Close (X)</div>'+
+                '<div class="closeModal" onclick="fileManager.closeModal()">Cancel (X)</div>'+
             '</div>';
     };
 

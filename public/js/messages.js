@@ -75,7 +75,7 @@ function Interactive(){
                 '<p><textArea id="shortMessage" placeholder="Enter a short message" cols="40" rows="8"></textArea></p>'+
                 '<div class="modalMessages"></div>'+
                 '<button onclick="messagesControl.sendMessage(this);">Send</button>'+
-                '<div class="closeModal" onclick="messagesControl.closeModal();">Close (X)</div>'+
+                '<div class="closeModal" onclick="messagesControl.closeModal();">Cancel (X)</div>'+
             '</div>';
     }
 
