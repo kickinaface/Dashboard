@@ -11,6 +11,9 @@ function IndexController(){
                         if(tokenMethods.authenticateToken(heldToken) == true){
                             res.redirect('/dashboard');
                         } else {
+                            foundUser.token = null;
+                            foundUser.userAgent = null;
+                            foundUser.save();
                             res.sendFile(pageFile);
                         }
                     }

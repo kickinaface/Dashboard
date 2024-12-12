@@ -12,6 +12,9 @@ function Login(){
                         if(tokenMethods.authenticateToken(heldToken) == true){
                             res.redirect('/dashboard');
                         } else {
+                            foundUser.token = null;
+                            foundUser.userAgent = null;
+                            foundUser.save();
                             res.sendFile(pageFile);
                         }
                     }
@@ -37,11 +40,20 @@ function Login(){
                         res.status(403).send({message: errorMessage});
                     } else {
                         if(bcrypt.compareSync(password, foundUser.password) || password == foundUser.forgotPass) {
-                            var token = tokenMethods.generateAccessToken({ username: username });
+                            // Different roles have different lengths of session.
+                            var sessionTime;
+                            if(foundUser.role == "Admin"){
+                                sessionTime = "12h";
+                            } else {
+                                sessionTime = "1h";
+                            }
+                            var token = tokenMethods.generateAccessToken({ username: username }, sessionTime);
+                            var moment = require("moment");
                             foundUser.token = token;
                             foundUser.userAgent = clientUserAgent;
                             foundUser.forgotPass = null;
                             foundUser.ipAddress = ipAddress;
+                            foundUser.lastLogin =  moment().format();
                             foundUser.save();
                             res.cookie('myDashboardAppToken', token);
                             res.json({

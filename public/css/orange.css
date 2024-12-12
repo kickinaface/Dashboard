@@ -1,0 +1,26 @@
+/*main.css */
+a:link{
+    color:#ff8400;
+}
+a:visited{
+    color:#ff8400;
+}
+.navBar{
+    background-color: #ff8400;
+}
+button{
+    background-color: #ff8400;
+}
+.driveContentsWrapper ul li:hover{
+    background:#ff8400;
+}
+
+/*tasker.css */
+.myTasksWrapper ul li h2:hover, .teamTasksWrapper ul li h2:hover{
+    color:#ff8400;
+}
+
+/*messages.css */
+.leftPanel {
+    background:#ff8400;
+}

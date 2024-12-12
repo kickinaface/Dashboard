@@ -9,19 +9,35 @@ function Tasker(){
             checkToken();
         }, (1000*60)*5);
         
-        superUtil.grabJSON('/api/dashboard/getName', function (status, data) {
-            if(status == 200){
-                var savedPerson = {
-                    name: data.name,
-                    email: data.email,
+        document.addEventListener("DOMContentLoaded", function(){
+            superUtil.grabJSON('/api/dashboard/getName', function (status, data) {
+                if(status == 200){
+                    var savedPerson = {
+                        name: data.name,
+                        email: data.email,
+                    }
+                    savedUser = savedPerson;
                 }
-                savedUser = savedPerson;
-            }
+            });
+            // Get Theme
+            superUtil.grabJSON("/api/dashboard/getTheme", function (status, data) {
+                if(status == 200){
+                    if(!data.uiTheme){
+                        superUtil.appUiTheme = "Charcoal";
+                        superUtil.applyUiTheme();
+                    } else {
+                        superUtil.appUiTheme = data.uiTheme;
+                        superUtil.applyUiTheme();
+                    }
+                } else {
+                    console.log(status, "There was an error", data);
+                }
+            });
+    
+            setTimeout(function(){
+                tasker.getMyTasks();
+            },1000);
         });
-
-        setTimeout(function(){
-            tasker.getMyTasks();
-        },1000);
     }
 
     function checkToken(){

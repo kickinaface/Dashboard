@@ -3,20 +3,22 @@ const app			= express();
 const bodyParser	= require('body-parser');
 const cookieParser 	= require('cookie-parser');
 const mongoose = require('mongoose');
-const dbUrl = "mongodb://localhost:27017/my-dashboard-app";
+const dbUrl = "mongodb://localhost:27017/";
 const https = require("https");
+const http = require("http");
 const ws = require("ws");
 const fs = require("fs");
 var helmet = require("helmet");
 const ioHelper = require('./controllers/serviceMethods/socket.io.helper');
-
+//
+const dotenv = require('dotenv');
+dotenv.config();
 var serverCert = 
 {
-	cert: (fs.readFileSync('./certificates/cert.pem') + fs.readFileSync('./certificates/ca.pem')),
-	key: fs.readFileSync("./certificates/cert-key.pem"),
-	ca: (fs.readFileSync('./certificates/ca-key.pem') + fs.readFileSync('./certificates/ca.pem'))
+  key: (fs.readFileSync("./certificates/new/key-mac.pem")),
+	cert: (fs.readFileSync('./certificates/new/cert-mac.pem')),
 };
-
+mongoose.set('strictQuery', false);
 mongoose.connect(dbUrl);
 //
 const fileUpload = require('express-fileupload');
@@ -33,24 +35,26 @@ const filemanagerController = require('./controllers/filemanagerController/filem
 const interactiveController = require('./controllers/interactiveController/interactiveController');
 const taskerController = require('./controllers/taskerController/taskerController');
 //
-const dotenv = require('dotenv');
-dotenv.config({path:"../.env"});
-//
 
-app.use(bodyParser.urlencoded({ extended: true, limit:'50mb' }));
-app.use(bodyParser.json({limit:'50mb'}));
+// app.use(bodyParser.urlencoded({ extended: true, limit:'100000mb' }));
+// app.use(bodyParser.json({limit:'100000mb'}));
+
+app.use(express.json());
 app.use(cookieParser());
-app.use(fileUpload({useTempFiles: true}));
+app.use(fileUpload({
+  useTempFiles: false,
+  limits: { fileSize: 5000 * 1024 * 1024 },
+}));
 app.use(helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'"],
+      imgSrc: ["'self'", "https: data:"]
     },
 }));
 //
-var port = process.env.PORT || 443;	//set port
+var port = process.env.PORT || 3000;	//set port
 
 //Router for the api
 var router = express.Router();		//get an instance of the express router
@@ -74,7 +78,10 @@ app.use(express.static(__dirname + '/public'));
 
 //START THE server
 //=====================================================
-var server = https.createServer(serverCert, app).listen(port, function(){
+// var server = https.createServer(serverCert, app).listen(port, function(){
+// 	console.log('The API is running on port: ', port);
+// });
+var server = http.createServer(serverCert, app).listen(port, function(){
 	console.log('The API is running on port: ', port);
 });
 
@@ -83,5 +90,6 @@ var server = https.createServer(serverCert, app).listen(port, function(){
  */
 const { Server } = require("socket.io");
 const io = new Server(server);
-ioHelper.manageSocketIO(io);
+
+// ioHelper.manageSocketIO(io);
 

@@ -1,5 +1,4 @@
 function LogoutController(){
-    //var tokenMethods = require("../../controllers/tokenMethods/tokenMethods");
     this.init = function init(app, router, pageFile, User){
         app.route("/logout").get(function (req, res){
             if(req.cookies.myDashboardAppToken != undefined){
@@ -8,6 +7,8 @@ function LogoutController(){
                         foundUser.token = null;
                         foundUser.userAgent = null;
                         foundUser.save();
+                        var moment = require("moment");
+                        console.log("User: ", foundUser.username, " has logged out.", "At: ", moment().format("dddd, MMMM Do YYYY, h:mm:ss a"));
                         res.sendFile(pageFile);
                     }
                 })

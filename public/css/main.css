@@ -7,10 +7,10 @@ body{
     background: #efefef;
 }
 a:link{
-    color:#c41717;
+    /* color:#c41717; */
 }
 a:visited{
-    color:#c41717;
+    /* color:#c41717; */
 }
 a:hover{
     color:black;
@@ -18,7 +18,7 @@ a:hover{
 .navBar {
     width: 100%;
     height:25px;
-    background-color: #c41717; 
+    /* background-color: #c41717;  */
     padding:10px 0px 15px 0px;
 }
     .logo{
@@ -61,7 +61,7 @@ input{
 button{
     padding:10px;
     margin: 10px;
-    background-color: #c41717;
+    /* background-color: #c41717; */
     color:white;
     outline: none;
     border:none;
@@ -97,7 +97,7 @@ button{
 .driveContentsWrapper ul li:hover{
     text-decoration: underline;
     cursor: pointer;
-    background: #c41717;
+    /* background: #c41717; */
     color:white;
 }
 
@@ -176,6 +176,28 @@ button{
 .currentPath {
     float: left;
     width: 100%;
+}
+/* Dashboard mobile notifications */
+.enabledCheckboxHolder{
+    width: 250px;
+    margin:0 auto;
+    margin-bottom:30px;
+}
+    #isMobileEnabledCheckbox{
+        width:20px;
+        cursor: pointer;
+    }
+    #newCarrierSelection {
+        cursor: pointer;
+    }
+
+#dashboardAvatar{
+    width:100px;
+    height:100px;
+    float:left;
+    background:none; 
+    margin-right:15px;
+    cursor: pointer;
 }
 
 /* Media Queries for mobile */

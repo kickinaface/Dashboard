@@ -1,5 +1,9 @@
 var superUtil = new SuperUtil();
-
+document.addEventListener("DOMContentLoaded", function(){
+    // Set Default Theme
+    superUtil.appUiTheme = "Charcoal";
+    superUtil.applyUiTheme();
+});
 function registerUser(e){
     e.preventDefault();
     document.querySelector('.fullScreenWrapper').style.display = 'block';

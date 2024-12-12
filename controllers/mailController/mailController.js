@@ -31,7 +31,6 @@ function MailController(){
     });
 
     const User = require("../../models/user");
-    const Tasker = require("../../controllers/taskerController/taskerController");
 
     this.sendForgotPasswordEmail = function sendForgotPasswordEmail(toEmail, udid){
         var mailOptions  = {
@@ -73,6 +72,29 @@ function MailController(){
                         return true;
                     }
                 });
+            }
+        });
+    };
+
+    // Sending Text messages
+    this.sendText = function sendText(toUser, message, fromName){
+        var preFixMessage = (fromName+" says: ");
+        if(fromName== null){
+            preFixMessage = "";
+        }
+        var mailOptions  = {
+            from: "ccarterathome@gmail.com",
+            to: toUser,
+            subject: "Mobile Notifications (DO NOT REPLY)",
+            text:(preFixMessage+message.message)
+        };
+        //
+        return transporter.sendMail(mailOptions, function(err, data){
+            if(err){
+                console.log(err);
+                return false;
+            } else{
+                return true;
             }
         });
     };

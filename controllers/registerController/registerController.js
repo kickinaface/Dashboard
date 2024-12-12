@@ -49,6 +49,7 @@ function RegisterController(){
                             newUser.lastName = lastName;
                             newUser.role = 'Basic';
                             newUser.createdDate = moment().format();
+                            newUser.uiTheme = "Charcoal";
                             //
                             newUser.save(function (err) {
                                 if(err){

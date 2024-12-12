@@ -12,7 +12,13 @@ var UserSchema = new Schema({
     forgotPass: String,
     isHidden: Boolean,
     createdDate: Date,
-    ipAddress:String
+    lastLogin:Date,
+    ipAddress:String,
+    uiTheme:String,
+    mobileNumber:String,
+    mobileCarrier:String,
+    mobileNotifications:Boolean,
+    avatarPhotoLink:String
 });
 
 UserSchema.index({'firstName':'text', 'lastName':'text', 'username':'text'});

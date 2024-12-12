@@ -1,8 +1,9 @@
 function TokenMethods() {
-    const jwt = require('jsonwebtoken');
-
-    this.generateAccessToken = function generateAccessToken(username) {
-        return jwt.sign(username, process.env.TOKEN_SECRET, { expiresIn: '1h' });
+    const   jwt = require('jsonwebtoken');
+    var moment = require("moment");
+    this.generateAccessToken = function generateAccessToken(username, time) {
+        console.log("User: "+username.username+ " has logged in with a: "+time+" valid session. At: "+moment().format("dddd, MMMM Do YYYY, h:mm:ss a"));
+        return jwt.sign(username, process.env.TOKEN_SECRET, { expiresIn: time });
     };
 
     this.authenticateToken = function authenticateToken(token) {

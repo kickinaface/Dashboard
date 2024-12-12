@@ -1,4 +1,5 @@
 var superUtil = new SuperUtil();
+superUtil.init();
 
 function FileManager(){
     var that = this;
@@ -9,6 +10,22 @@ function FileManager(){
         }, (1000*60)*5);
 
         getDrives();
+        document.addEventListener("DOMContentLoaded", function(){
+            // Get Theme
+            superUtil.grabJSON("/api/dashboard/getTheme", function (status, data) {
+                if(status == 200){
+                    if(!data.uiTheme){
+                        superUtil.appUiTheme = "Charcoal";
+                        superUtil.applyUiTheme();
+                    } else {
+                        superUtil.appUiTheme = data.uiTheme;
+                        superUtil.applyUiTheme();
+                    }
+                } else {
+                    console.log(status, "There was an error", data);
+                }
+            });
+        });
     };
     this.isDownloading = false;
 
@@ -19,20 +36,36 @@ function FileManager(){
             } else {
                 window.location = '/logout';
             }
-        },'GET');
+        });
     };
 
     function getDrives(){
         superUtil.grabJSON('/api/dashboard/filemanager/getDrives', function (status, data) {
             if(status == 200){
                 for(var d=0; d<= data.drives.length-1; d++){
+                    console.log("sdfas")
                     document.querySelector('.displayDrives ul').innerHTML += "<li><button onclick=fileManager.showDriveContents('"+d+"')>"+data.drives[d].name+"</buton></li>";
                 }
             } else {
                 window.location = '/logout';
             }
-        }, 'GET');
+        });
     };
+
+    // Get Theme
+    superUtil.grabJSON("/api/dashboard/getTheme", function (status, data) {
+        if(status == 200){
+            console.log("held theme is: ",data.uiTheme);
+            if(!data.uiTheme){
+                superUtil.appUiTheme = "Charcoal";
+                superUtil.applyUiTheme();
+            } else {
+                superUtil.appUiTheme = data.uiTheme;
+            }
+        } else {
+            console.log(status, "There was an error", data);
+        }
+    });
     
     this.showDriveContents = function showDriveContents(driveNumIndex){
         document.querySelector('.fullScreenWrapper').innerHTML = "";
@@ -55,16 +88,20 @@ function FileManager(){
                     if(formattedString.includes("'")){
                         formattedString = formattedString.replaceAll(/'/g, '%27');
                     }
+                    console.log("data: ", data);
                     document.querySelector('.driveContentsWrapper ul').innerHTML+= "<li onclick=fileManager.getContentsFromPath('"+formattedString+"');>"+data[d].name+"</li>";
                 }
-                currentPath = (data[0].path).slice(0,(data[0].path).lastIndexOf(":"))+":";
+                // linux path change fix
+                currentPath = (data[0].path).slice(0,(data[0].path).lastIndexOf("/"))+"";
+                // For Windows: 
+                //currentPath = (data[0].path).slice(0,(data[0].path).lastIndexOf(":"))+":";
                 // Remove %20 from path name to avoid errors in uploading with path
                 currentPath = currentPath.replaceAll("%20", " ");
                 // Remove %27 from path name to avoid errors in uploading with path
                 currentPath = currentPath.replaceAll("%27", "'");
-                document.querySelector(".currentPath").innerHTML = "<i>Current Path: </i>"+currentPath;
+                document.querySelector(".currentPath").innerHTML = "<i>Current Path: </i>"+currentPath+"<button style='padding:5px; padding-bottom:2px;' onclick='fileManager.goUpPath();'>^</button>";
             }else {
-                // TODO: Handle Error messages
+                alert(data.message);
                 console.log(status);
                 console.log(data);
             }
@@ -84,14 +121,18 @@ function FileManager(){
                             '<h2>Perform File Actions</h2>'+
                             '<button class="downloadButton" onclick="fileManager.downloadFileFromPath(`'+data.filePath+'`);">Download File</button>'+
                             '<button class="deleteFileButton" onclick="fileManager.deleteFileFromPath(`'+data.filePath+'`);">Delete File</button>'+
+                            '<button class="wholeFolderButton" onclick="superUtil.fileUploadExtensions(`downloadWholeFolder`, `'+currentPath+'`);">Batch Folder Download</button>'+
                             '<div class="downloadProgressWrapper">'+
                                 '<div class="downloadProgress">'+
                                     '<div>0%</div>'+
                                 '</div>'+
                             '</div>'+
                             '<div class="downloadStatusMessages"></div>'+
-                            '<div class="closeModal" onclick="fileManager.closeModal()">Cancel (X)</div>'+
+                            '<div class="closeModal" onclick="fileManager.closeModal()">Close (X)</div>'+
                         '</div>';
+                        //
+                        // Apply file uploader extensions
+                        //superUtil.fileUploadExtensions("reEnableDialog");
                 }else {
                     document.querySelector('.fullScreenWrapper').style.display = 'none';
                     document.querySelector('.driveContentsWrapper ul').innerHTML = '';
@@ -102,7 +143,8 @@ function FileManager(){
                     currentPath = currentPath.replaceAll("%20", " ");
                     // Remove %27 from path name to avoid errors in uploading with path
                     currentPath = currentPath.replaceAll("%27", "'");
-                    document.querySelector(".currentPath").innerHTML = ("<i>Current Path: </i>")+currentPath;
+                    document.querySelector(".currentPath").innerHTML = ("<i>Current Path: </i>")+currentPath+"<button style='padding:5px; padding-bottom:2px;' onclick='fileManager.goUpPath();'>^</button>"
+                    ;
                     for(var d=0; d<=data.length-1; d++){
                         var filePath = data[d].path;
                         // If path contains a space replace it with %20 to avoid error from loading file or directory
@@ -120,6 +162,7 @@ function FileManager(){
             } else {
                 // Handle Error messages
                 document.querySelector('.fullScreenWrapper').style.display = "none";
+                alert(data.message);
                 console.log(status);
                 console.log(data);
             }
@@ -131,6 +174,8 @@ function FileManager(){
         document.querySelector(".downloadButton").style.opacity = '.5';
         document.querySelector(".deleteFileButton").disabled = true;
         document.querySelector(".deleteFileButton").style.opacity = '.5';
+        document.querySelector(".wholeFolderButton").disabled = true;
+        document.querySelector(".wholeFolderButton").style.opacity = '.5';
         //
         downloadFile({requestFile:downloadPath}, '/api/dashboard/filemanager/downloadFileFromPath', 'POST');
         
@@ -167,7 +212,7 @@ function FileManager(){
                     document.body.appendChild(fileLink);
                     fileLink.click();
                     fileLink.remove();
-                    document.querySelector('.fullScreenWrapper').style.display = 'none';
+                    //document.querySelector('.fullScreenWrapper').style.display = 'none';
                 }
             }
             var data = JSON.stringify(postData);
@@ -201,7 +246,7 @@ function FileManager(){
                     "<p><button onclick='fileManager.uploadFile(event)' id='uploadFileBtn'>Upload File</button></p>"+
                     "<div class='modalMessages'></div>"+
                 "</form>"+
-                '<div class="closeModal" onclick="fileManager.closeModal()">Cancel (X)</div>'+
+                '<div class="closeModal" onclick="fileManager.closeModal()">Close (X)</div>'+
             '</div>';
     };
 
@@ -265,6 +310,11 @@ function FileManager(){
                 document.querySelector(".downloadStatusMessages").innerHTML = "<span class='red'>"+data.message+"</span>";
             }
         }, "POST");
+    }
+
+    this.goUpPath = function goUpPath(){
+        var newPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
+        fileManager.getContentsFromPath(newPath);
     }
 }
 

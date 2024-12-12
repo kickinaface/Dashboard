@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <title>Christopher's Digital Solutions - Admin Dashboard</title>
+    <title>Moditta Rover  - Admin Dashboard</title>
     <script src="/js/superUtilBase.js"></script>
     <script src="/js/dashboard.js"></script>
     <script src="/js/moment.js"></script>
@@ -16,8 +16,15 @@
             subContentWrapper.innerHTML = "";
             superUtil.grabJSON('/api/dashboard/getAllUsers', function (status, data) {
                 if(status == 200){
+                    var lastLogin;
                     for(var u=0; u<=data.length-1; u++){
                         var user_id =data[u]._id;
+                        
+                        if(data[u].lastLogin != null){
+                            lastLogin =  moment(data[u].lastLogin).format("MMMM Do YYYY, h:mm:ss a");
+                        } else {
+                            lastLogin = undefined;
+                        }
                         subContentWrapper.innerHTML+= "<div class='singleUser'><i>_id: </i><span class='user_id'>"+data[u]._id+
                         "</span></br><i> Name: </i>"+
                         data[u].firstName +" "+data[u].lastName+
@@ -31,6 +38,9 @@
                         data[u].isHidden +
                         "</br><i> Account Creation Date: </i>"+
                         moment(data[u].createdDate).format("MMMM Do YYYY, h:mm:ss a") +
+                        "</br><i> Last Login Date: </i>"+
+                        lastLogin+
+                        
                         "</br><button onclick=dashboard.changeUserRole(event);>Change User's Role</button>"+
                         "<button class='closeModal' onclick=dashboard.deleteUser(event);>Delete User</button></div></br>";
                     }                    
@@ -109,11 +119,12 @@
         };
     </script>
     <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" id="cssThemes" href="#">
 </head>
 <body>
     <div class="fullScreenWrapper"></div>
     <div class="navBar">
-        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions</span>
+        <span class="logo" onclick="window.location='/';">Moditta Rover </span>
         <div class="navList">
             <ul>
                 <li onclick="window.location='/dashboard'"><u>Dashboard</u></li>
@@ -125,11 +136,15 @@
         </div>
     </div>
     <div class="mainContent">
+        <img id="dashboardAvatar" src="/img/default-image.png" alt="Avatar" onclick="dashboard.updateAvatarModal();">
         <h1>Administrator Dashboard</h1>
         <h3>Welcome <span class="usersName">user</span>.</h3>
         <button onclick="dashboard.editName();">Edit Name</button>
         <button onclick="dashboard.openChangePasswordModal();">Change Password</button>
         <button onclick="dashboard.showAllUsers();">Show All Users</button>
+        <button onclick="dashboard.updateThemeModal();">UI Color Theme</button>
+        <button onclick="dashboard.updateMobileModal();">Mobile</button>
+        <button onclick="dashboard.updateAvatarModal();">Edit Avatar</button>
         <br>
         <div class="subContentWrapper"></div>
     </div>

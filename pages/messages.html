@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <title>Christopher's Digital Solutions - Interactive</title>
+    <title>Moditta Rover  - Interactive</title>
     <script src="/js/superUtilBase.js"></script>
     <link rel="stylesheet" href="/css/main.css">
     <script src="/socket.io/socket.io.js"></script>
@@ -13,11 +13,12 @@
     <script src="/js/lodash.js"></script>
     <script src="/js/moment.js"></script>
     <link rel="stylesheet" href="/css/messages.css">
+    <link rel="stylesheet" id="cssThemes" href="#">
 </head>
 <body>
     <div class="fullScreenWrapper"></div>
     <div class="navBar">
-        <span class="logo" onclick="window.location='/';">Christopher's Digital Solutions</span>
+        <span class="logo" onclick="window.location='/';">Moditta Rover </span>
         <div class="navList">
             <ul>
                 <li onclick="window.location='/dashboard'">Dashboard</li>
@@ -32,9 +33,11 @@
         <h1>Messages</h1>
         Welcome to Messages. You can interact live with other users. Check out the Web Socket programs below.
         <div class="interactiveActions">
-            <button id="getMyMessagesBtn" onclick="messagesControl.getMyMessages();">My Messages</button>
-            <button onclick="interactive.showUsers();">Show Users</button>
-            <button onclick="interactive.showGlobalChat();">Global Chat</button>
+            <button id="getMyMessagesBtn" onclick="window.location='/dashboard/messages'">My Messages</button>
+            <!-- <button onclick="interactive.showUsers();">Show Users</button>
+            <button onclick="interactive.showGlobalChat();">Global Chat</button> -->
+            <button onclick="interactive.sendDirectMessage(null);">Send Message</button>
+            <!-- <button onclick="interactive.openSettingsModal();">Settings</button> -->
         </div>
         <br>
         <div class="usersList">
@@ -51,7 +54,8 @@
             <div class="conversationWrapper">
                 <h2>Conversation with: <span id="chattingWith"></span></h2>
                 <h3 style="display: none;">Email: <span id="chattingWithEmail"></span></h3>
-                <button onclick="messagesControl.sendMessageInConversation()">Send Message</button>
+                <button onclick="messagesControl.sendMessageInConversation()">Reply</button>
+                <button onclick="messagesControl.deleteMessageInConversation()">Delete</button>
                 <ul></ul>
                 <!-- <input type="text" placeholder="Enter a short message."> -->
             </div>

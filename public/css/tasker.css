@@ -16,7 +16,7 @@
 .myTasksWrapper ul li h2:hover, .teamTasksWrapper ul li h2:hover{
     text-decoration: underline;
     cursor: pointer;
-    color: #c41717;
+    /* color: #c41717; */
 }
 
 .stepItem, .taskMember{

@@ -34,12 +34,11 @@
 
 .leftPanel{
     width: 100%;
-    background: #c41717;
+    /* background: #c41717; */
     padding: 1px 10px 1px 10px;
 }
 .conversationWrapper{
     width: 100%;
-    /* background: #c41717; */
     display:none;
     padding:5px 0px 5px 0px;
 }

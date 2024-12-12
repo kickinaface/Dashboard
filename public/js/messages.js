@@ -1,6 +1,21 @@
 var superUtil = new SuperUtil();
-const socket = io();
+// const socket = io();
+// var currentUrl = window.location.href;
+// console.log("currentUrl ", currentUrl);
+// const protocol = window.location.protocol;
+// console.log(protocol);
+// const host = window.location.host;
+// const pathname = window.location.pathname;
+// const search = window.location.search;
+// const hash = window.location.hash;
+// console.log("host: ", host);
+// console.log("pathname: ", pathname);
+// console.log("search: ", search);
+// console.log("hash: ", hash);
 
+// socket = io.connect("http://localhost:3000", {
+//     transports:['websocket', 'polling']
+// });
 function Interactive(){
     var messagesArray = [];
     var knownUsers = [];
@@ -19,64 +34,110 @@ function Interactive(){
                 }
             },'GET');
         };
-        socket.emit('getClientId');
-        socket.on('clientId', function (data) {
-            var clientId = data;
-             // Get Name
-            superUtil.grabJSON('/api/dashboard/getName', function (status, data) {
+        document.addEventListener("DOMContentLoaded", function (){
+            // Get Theme
+            superUtil.grabJSON("/api/dashboard/getTheme", function (status, data) {
                 if(status == 200){
-                    var savedPerson = {
-                        name: data.name,
-                        email: data.email,
-                        id: clientId,
-                        x: 0,
-                        y: 0
+                    if(!data.uiTheme){
+                        superUtil.appUiTheme = "Charcoal";
+                        superUtil.applyUiTheme();
+                    } else {
+                        superUtil.appUiTheme = data.uiTheme;
+                        superUtil.applyUiTheme();
                     }
-                    _that.savedPerson = savedPerson;
-                    socket.emit('user joined', savedPerson );
+                } else {
+                    console.log(status, "There was an error", data);
                 }
             });
         });
+        //socket.emit('getClientId');
+        // socket.on('clientId', function (data) {
+        //     var clientId = data;
+        //      // Get Name
+        //     superUtil.grabJSON('/api/dashboard/getName', function (status, data) {
+        //         if(status == 200){
+        //             var savedPerson = {
+        //                 name: data.name,
+        //                 email: data.email,
+        //                 id: clientId,
+        //                 x: 0,
+        //                 y: 0
+        //             }
+        //             _that.savedPerson = savedPerson;
+        //             socket.emit('user joined', savedPerson );
+        //         }
+        //     });
+        // });
 
-        // Handle new messages coming in
-        socket.on('get messages', function (message) {
-            messagesArray.push(message);
-        });
+        // // Handle new messages coming in
+        // socket.on('get messages', function (message) {
+        //     messagesArray.push(message);
+        // });
 
-        socket.on("updateUsers", function(users){
-            knownUsers = users;
-            var usersObject = Object.entries(knownUsers)[0][1];
-            var usersList = document.querySelector(".usersList ul");
-            usersList.innerHTML = "";
-            //
-            for(var u =0; u<=usersObject.length-1; u++){
-                usersList.innerHTML += "<li><strong>"+usersObject[u].name+"</strong> <button onclick=interactive.sendDirectMessage('"+usersObject[u].email+"');>Send Message</button></li>";
-            }
-        });
+        // socket.on("updateUsers", function(users){
+        //     knownUsers = users;
+        //     var usersObject = Object.entries(knownUsers)[0][1];
+        //     var usersList = document.querySelector(".usersList ul");
+        //     usersList.innerHTML = "";
+        //     //
+        //     for(var u =0; u<=usersObject.length-1; u++){
+        //         usersList.innerHTML += "<li><strong>"+usersObject[u].name+"</strong> <button onclick=interactive.sendDirectMessage('"+usersObject[u].email+"');>Send Message</button></li>";
+        //     }
+        // });
 
-        socket.on("chatMessageReceived", function(data){
-            messagesArray.push(data);
-            var globalChatWrapper = document.querySelector(".globalChatWrapper ul");
-            globalChatWrapper.innerHTML = "";
-            //
-            for(var m=0; m<=messagesArray.length-1; m++){
-                globalChatWrapper.innerHTML += "<li><strong>"+messagesArray[m].from+":</strong> "+messagesArray[m].chatMessage+"</li>";
-            }
-        });
+        // socket.on("chatMessageReceived", function(data){
+        //     messagesArray.push(data);
+        //     var globalChatWrapper = document.querySelector(".globalChatWrapper ul");
+        //     globalChatWrapper.innerHTML = "";
+        //     //
+        //     for(var m=0; m<=messagesArray.length-1; m++){
+        //         globalChatWrapper.innerHTML += "<li><strong>"+messagesArray[m].from+":</strong> "+messagesArray[m].chatMessage+"</li>";
+        //     }
+        // });
     };
 
     this.sendDirectMessage = function sendDirectMessage(toEmail){
-        document.querySelector('.fullScreenWrapper').style.display = 'block';
-        document.querySelector('.fullScreenWrapper').innerHTML = 
-            '<div class="modalContentWrapper">'+
-                '<h2>Send A Message</h2>'+
-                '<span>Sending To:</span>'+
-                '<input id="fromEmail" value='+toEmail+' disabled></input>'+
-                '<p><textArea id="shortMessage" placeholder="Enter a short message" cols="40" rows="8"></textArea></p>'+
-                '<div class="modalMessages"></div>'+
-                '<button onclick="messagesControl.sendMessage(this);">Send</button>'+
-                '<div class="closeModal" onclick="messagesControl.closeModal();">Cancel (X)</div>'+
-            '</div>';
+        // later use a parameter instead of saying the same html again.
+        if(toEmail != null){
+            document.querySelector('.fullScreenWrapper').style.display = 'block';
+            document.querySelector('.fullScreenWrapper').innerHTML = 
+                '<div class="modalContentWrapper">'+
+                    '<h2>Send A Message</h2>'+
+                    '<span>Sending To:</span>'+
+                    '<input id="fromEmail" value='+toEmail+' disabled></input>'+
+                    '<p><textArea id="shortMessage" placeholder="Enter a short message" cols="40" rows="8"></textArea></p>'+
+                    '<div class="modalMessages"></div>'+
+                    '<button onclick="messagesControl.sendMessage(this);">Send</button>'+
+                    '<div class="closeModal" onclick="messagesControl.closeModal();">Cancel (X)</div>'+
+                '</div>';
+        } else {
+            document.querySelector('.fullScreenWrapper').style.display = 'block';
+            document.querySelector('.fullScreenWrapper').innerHTML = 
+                '<div class="modalContentWrapper">'+
+                    '<h2>Send A Message</h2>'+
+                    '<span>Sending To:</span>'+
+                    '<input id="fromEmail" placeholder="userEmail@validEmail.com"></input>'+
+                    '<p><textArea id="shortMessage" placeholder="Enter a short message" cols="40" rows="8"></textArea></p>'+
+                    '<div class="modalMessages"></div>'+
+                    '<button onclick="messagesControl.sendMessage(this);">Send</button>'+
+                    '<div class="closeModal" onclick="messagesControl.closeModal();">Cancel (X)</div>'+
+                '</div>';
+        }
+        
+    }
+
+    this.deleteMessages = function deleteMessages(withUser){
+        superUtil.sendJSON({withUser:withUser},"/api/dashboard/messages/removeMessages/", function(status, data){
+            if(status == 200){
+                console.log("message was deleted, refresh page");
+                console.log('data ', data);
+                window.location = "/dashboard/messages";
+            } else {
+                console.log("There was an error...");
+                console.log("data", data);
+                console.log("status ", status);
+            }
+        }, "DELETE");
     }
 
     this.showUsers = function showUsers(){
@@ -119,9 +180,12 @@ function MessagesControl(){
     var oldConversationLength = 0;
     //
     this.init = function init(){
-        setTimeout(function(){
+        // setTimeout(function(){
+        //     messagesControl.getMyMessages();
+        // },500);
+        document.addEventListener("DOMContentLoaded", function (){
             messagesControl.getMyMessages();
-        },500);
+        });
     }
 
     this.sendMessage = function sendMessage(messageObject){
@@ -170,49 +234,72 @@ function MessagesControl(){
                         var dataList = Object.entries(data);
                         var numConversations = dataList.length;
                         var allCombinedMessages = [];
-                        // Empty the array of the previous messages
-                        myMessages = [];
-                        for(var m = 0; m <=numConversations-1; m++){
-                            allCombinedMessages.push(dataList[m][1]);
-                        }
-                        // Loop through the allCombinedMessages and refomat array for later use.
-                        for(var l = 0; l <=allCombinedMessages.length-1; l++){
-                            for(var n = 0; n<= allCombinedMessages[l].length-1; n++){
-                                myMessages.push(allCombinedMessages[l][n]);
-                            }
-                        }
-                        
                         var leftPanel = document.querySelector(".leftPanel");
-                        // Only update the interface if we have new messages
-                        if(myMessages.length > oldMessagesLength || myMessages.length < oldMessagesLength){
-                            // Set new and old message values to be compared for populating new messages
-                            oldMessagesLength = myMessages.length;
-                            // Reset and build the left panel;
-                            leftPanel.innerHTML = "";
-                            for(var i =0; i<=dataList.length-1; i++){
-                                var userEmailAddress = dataList[i][0];
-                                var usersDisplayName = dataList[i][1][0].name;
-                                var creationDate = dataList[i][1][0].creationDate;
-            
-                                if(userEmailAddress == currentUserEmail){
-                                    // Do nothing these are your messages
-                                } else {
-                                    var formattedDate = moment(creationDate).format('MMMM DD, YYYY h:mm a');
-                                    leftPanel.innerHTML += '<div class="messageWrapper" onclick=messagesControl.loadMessagesWithUser("'+userEmailAddress+'");>'+
-                                                                '<div class="messageicon">'+
-                                                                    '<img class="leftPanelAvatar" src="/img/default-image.png" width="50px;" alt="">'+
-                                                                        '<div class="messagePreview">'+
-                                                                            '<div class="messageFromUser">'+usersDisplayName+'</div>'+
-                                                                        '</div>'+
-                                                                '</div>'+
-                                                                '<div class="userEmailAddress">'+userEmailAddress+'</div>'+
-                                                                "<br>"+
-                                                                // '<div class="messageCreationDate">'+formattedDate+'</div>'+
-                                                            '</div>';
+                        if(dataList.length ==0){
+                            document.querySelector(".MyMessagesWrapper").innerHTML = "<span>There are no messages here.</span>";
+                        }else {
+                            // Empty the array of the previous messages
+                            myMessages = [];
+                            for(var m = 0; m <=numConversations-1; m++){
+                                allCombinedMessages.push(dataList[m][1]);
+                            }
+                            // Loop through the allCombinedMessages and refomat array for later use.
+                            for(var l = 0; l <=allCombinedMessages.length-1; l++){
+                                for(var n = 0; n<= allCombinedMessages[l].length-1; n++){
+                                    myMessages.push(allCombinedMessages[l][n]);
                                 }
                             }
+                            
+                            // Only update the interface if we have new messages
+                            if(myMessages.length > oldMessagesLength || myMessages.length < oldMessagesLength){
+                                // Set new and old message values to be compared for populating new messages
+                                oldMessagesLength = myMessages.length;
+                                // Reset and build the left panel;
+                                leftPanel.innerHTML = "";
+                                var heldDataList = dataList;
+                                var orderedByDateList = [];
+                                for(var i =0; i<=heldDataList.length-1; i++){
+                                    var userEmailAddress = dataList[i][1][0].fromUser;
+                                    var usersDisplayName = dataList[i][1][0].name;
+                                    var creationDate = dataList[i][1][dataList[i][1].length-1].creationDate;
+                                    var avatarImage = dataList[i][1][0].avatarImage;
+                                    
+                                    if(userEmailAddress == currentUserEmail){
+                                        // Do nothing these are your messages
+                                    } else {
+                                        // Place the grouped contents in a new array to be reordered by their date.
+                                        //var formattedDate = moment(creationDate).format('MMMM DD, YYYY h:mm a');
+                                        orderedByDateList.push({
+                                            avatar: avatarImage,
+                                            name: usersDisplayName,
+                                            email: userEmailAddress,
+                                            sentDate: creationDate
+                                        });
+                                    }
+                                }
+                                // sort the ordered list group by their dates
+                                orderedByDateList = _.sortBy(orderedByDateList, function(d){ return new moment(d.sentDate)}).reverse();
+                                // append the list to the document.
+                                for(var i=0; i<= orderedByDateList.length-1; i++){
+                                    var formattedDate = moment(orderedByDateList[i].sentDate).format('MMMM DD, YYYY h:mm a');
+                                    leftPanel.innerHTML += '<div class="messageWrapper" onclick=messagesControl.loadMessagesWithUser("'+orderedByDateList[i].email+'");>'+
+                                                                    '<div class="messageicon">'+
+                                                                        '<img class="leftPanelAvatar" src="'+orderedByDateList[i].avatar+'" width="50px" height="50px" alt="">'+
+                                                                            '<div class="messagePreview">'+
+                                                                                '<div class="messageFromUser">'+orderedByDateList[i].name+'</div>'+
+                                                                            '</div>'+
+                                                                    '</div>'+
+                                                                    '<div class="userEmailAddress">'+orderedByDateList[i].email+'</div>'+
+                                                                    "<br>"+
+                                                                    '<div class="messageCreationDate">'+formattedDate+'</div>'+
+                                                                '</div>';
+                                }
+                            }
+
+                            if(leftPanel.innerHTML == ""){
+                                document.querySelector(".MyMessagesWrapper").innerHTML = "<span>There are no messages here.</span>";
+                            }
                         }
-                        
                     } else {
                         console.log(status, data);
                     }
@@ -257,7 +344,7 @@ function MessagesControl(){
                             //sendMessageToUser = sortedConversation[convo].fromUser;
                             conversationList.innerHTML+= "<li>"+
                                                 "<div class='leftMessage'>"+
-                                                    "<div class='chatAvatar'><img src='/img/default-image.png' width='50px;'></div>"+
+                                                    "<div class='chatAvatar'><img src='"+sortedConversation[convo].avatarImage+"' width='50px' height='50px'></div>"+
                                                     "From: "+sortedConversation[convo].name+
                                                     "<br/>"+
                                                     "Date: "+formattedDate+
@@ -269,7 +356,7 @@ function MessagesControl(){
                             //sendMessageToUser = sortedConversation[convo].toUser;
                             conversationList.innerHTML+= "<li>"+
                                                 "<div class='rightMessages'>"+
-                                                    "<div class='chatAvatar'><img src='/img/default-image.png' width='50px;'></div>"+
+                                                    "<div class='chatAvatar'><img src='"+sortedConversation[convo].avatarImage+"' width='50px' height='50px'></div>"+
                                                     "From: You"+
                                                     "<br/>"+
                                                     "Date: "+formattedDate+
@@ -288,6 +375,14 @@ function MessagesControl(){
     this.sendMessageInConversation = function sendMessageInConversation(){
         var chattingWithEmail = document.querySelector("#chattingWithEmail").innerHTML;
         interactive.sendDirectMessage(chattingWithEmail);
+    }
+
+    this.deleteMessageInConversation = function deleteMessageInConversation(){
+        var chattingWithEmail = document.querySelector("#chattingWithEmail").innerHTML;
+        console.log('Delete all messages between user: ', chattingWithEmail);
+        if(confirm("Are you sure you wish to delete this conversation?")){
+            interactive.deleteMessages(chattingWithEmail);
+        }
     }
 
     setInterval(function (){
