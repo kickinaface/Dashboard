@@ -15,6 +15,7 @@
 .globalChatWrapper, .MyMessagesWrapper{
     padding: 10px;
     background: white;
+    border-radius: 5px;
 }
     .globalChatWrapper input{
         width: 90%;
@@ -36,6 +37,7 @@
     width: 100%;
     /* background: #c41717; */
     padding: 1px 10px 1px 10px;
+    border-radius: 5px;
 }
 .conversationWrapper{
     width: 100%;
@@ -73,6 +75,7 @@
     cursor: pointer;
     margin-bottom:10px;
     margin-top:10px;
+    border-radius: 5px;
 }
 .userEmailAddress{
     width: 200px;
@@ -85,6 +88,7 @@
     background:white;
     border:2px solid #c2c2c2;
     padding:10px;
+    border-radius: 10px;
 }
     .leftMessage .chatAvatar {
         float: left;
@@ -95,6 +99,7 @@
     background:#efefef;
     border:2px solid #adadad;
     padding:10px;
+    border-radius: 5px;
 }
 
     .rightMessages .chatAvatar {

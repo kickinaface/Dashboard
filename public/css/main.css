@@ -66,6 +66,7 @@ button{
     outline: none;
     border:none;
     cursor: pointer;
+    border-radius: 5px;
 }
 
 .miniBtn{
@@ -120,6 +121,7 @@ button{
         text-align: center;
         padding:20px;
         margin-top:20px;
+        border-radius: 5px;
     }
     .modalContentWrapper textarea{
         width: 95%;
@@ -141,6 +143,7 @@ button{
             margin:0 auto;
             margin-top:20px;
             cursor: pointer;
+            border-radius: 5px;
         }
         .downloadProgressWrapper{
             width: 90%;
