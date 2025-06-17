@@ -130,6 +130,7 @@ function Tasker(){
         document.querySelector("#singleTaskId").value = taskIndex;
         document.querySelector(".singleTaskWrapper h1").innerHTML = singleTask.taskName;
         document.querySelector(".taskDetails").innerHTML = singleTask.taskDetails;
+        document.querySelector(".taskCreator").innerHTML = singleTask.createdBy;
         document.querySelector(".taskSteps ul").innerHTML = "";
         document.querySelector(".taskMembers ul").innerHTML = "";
         if(singleTask.taskSteps.length == 0){
@@ -546,6 +547,7 @@ function Tasker(){
             document.querySelector(".singleTeamTask #singleTaskId").value = index;
             document.querySelector(".singleTeamTask h1").innerHTML = singleTeamTask.taskName;
             document.querySelector(".singleTeamTask .taskDetails").innerHTML = singleTeamTask.taskDetails;
+            document.querySelector(".singleTeamTask .taskCreator").innerHTML = singleTeamTask.createdBy;
             document.querySelector(".singleTeamTask .taskSteps ul").innerHTML = "";
             document.querySelector(".singleTeamTask .taskMembers ul").innerHTML = "";
             if(singleTeamTask.taskSteps.length == 0){
