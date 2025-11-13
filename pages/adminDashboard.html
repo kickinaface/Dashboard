@@ -67,7 +67,7 @@
 
         dashboard.deleteUserById = function (event){
             var userId = event.target.parentNode.parentNode.querySelector(".user_id").innerHTML;
-            superUtil.authPostRequest(null, ("api/dashboard/deleteUserbyId/"+userId), function(status, res){
+            superUtil.sendJSON({}, ("api/dashboard/deleteUserbyId/"+userId), function(status, res){
                 if(status!= 200){
                     console.log(res.message)
                     location.reload();
@@ -149,4 +149,5 @@
         <div class="subContentWrapper"></div>
     </div>
 </body>
+
 </html>
